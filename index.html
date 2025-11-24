@@ -316,84 +316,82 @@
                             <p className="text-gray-400">Real-time Task Tracking from Google Sheets</p>
                         </div>
 
-                        <div className="bg-slate-800 rounded-xl shadow-lg p-6 mb-6 border border-slate-700">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                    <RefreshCw className="w-6 h-6 text-blue-400" />
-                                    <h2 className="text-xl font-bold text-white">Data Status</h2>
+                        <div className="bg-slate-800 rounded-xl shadow-lg p-5 mb-6 border border-slate-700">
+                            <div className="flex items-center justify-between gap-6 flex-wrap">
+                                {/* Left side - Filters */}
+                                <div className="flex items-center gap-4 flex-1 min-w-[600px]">
+                                    <div className="flex items-center gap-2 text-white font-semibold">
+                                        <Filter className="w-5 h-5" />
+                                        <span className="text-lg">Filters</span>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2 flex-1">
+                                        <User className="text-gray-400 w-4 h-4" />
+                                        <select
+                                            value={selectedName}
+                                            onChange={(e) => setSelectedName(e.target.value)}
+                                            className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        >
+                                            <option value="">Employee Name</option>
+                                            {uniqueNames.map(name => (
+                                                <option key={name} value={name}>{name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2 flex-1">
+                                        <Calendar className="text-gray-400 w-4 h-4" />
+                                        <input
+                                            type="date"
+                                            value={startDate}
+                                            onChange={(e) => setStartDate(e.target.value)}
+                                            className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2 flex-1">
+                                        <Calendar className="text-gray-400 w-4 h-4" />
+                                        <input
+                                            type="date"
+                                            value={endDate}
+                                            onChange={(e) => setEndDate(e.target.value)}
+                                            className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
                                 </div>
-                                <button
-                                    onClick={fetchDataFromSheet}
-                                    disabled={loading}
-                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors"
-                                >
-                                    <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                                    {loading ? 'Refreshing...' : 'Refresh Data'}
-                                </button>
+
+                                {/* Right side - Data Status & Refresh */}
+                                <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <RefreshCw className="w-5 h-5 text-blue-400" />
+                                        <div className="flex flex-col">
+                                            <span className="text-lg font-bold text-white">Data Status</span>
+                                            {lastUpdated && (
+                                                <span className="text-xs text-gray-400">
+                                                    Updated: {lastUpdated.toLocaleTimeString()} • <span className="text-green-400">✓ {data.length} records</span>
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    <button
+                                        onClick={fetchDataFromSheet}
+                                        disabled={loading}
+                                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors whitespace-nowrap"
+                                    >
+                                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                                        {loading ? 'Refreshing...' : 'Refresh'}
+                                    </button>
+                                </div>
                             </div>
                             
                             {error && (
-                                <div className="bg-red-900 border border-red-500 rounded-lg p-4 mb-4">
-                                    <p className="text-red-200">{error}</p>
-                                </div>
-                            )}
-                            
-                            {lastUpdated && (
-                                <div className="text-sm text-gray-400">
-                                    Last updated: {lastUpdated.toLocaleString()}
-                                    <span className="ml-4 text-green-400">✓ {data.length} records loaded</span>
+                                <div className="mt-3 text-sm text-red-400 flex items-center gap-2">
+                                    <AlertCircle className="w-4 h-4" />
+                                    {error}
                                 </div>
                             )}
                         </div>
-
-                        {data.length > 0 && (
-                            <div className="bg-slate-800 rounded-xl shadow-lg p-5 mb-6 border border-slate-700">
-                                <div className="flex items-center justify-between gap-6">
-                                    <div className="flex items-center gap-2 text-white font-semibold min-w-fit">
-                                        <Filter />
-                                        <span>Filters</span>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-4 flex-1">
-                                        <div className="flex items-center gap-2 flex-1">
-                                            <User className="text-gray-400 w-4 h-4" />
-                                            <select
-                                                value={selectedName}
-                                                onChange={(e) => setSelectedName(e.target.value)}
-                                                className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            >
-                                                <option value="">Employee Name</option>
-                                                {uniqueNames.map(name => (
-                                                    <option key={name} value={name}>{name}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-2 flex-1">
-                                            <Calendar className="text-gray-400 w-4 h-4" />
-                                            <input
-                                                type="date"
-                                                value={startDate}
-                                                onChange={(e) => setStartDate(e.target.value)}
-                                                placeholder="Start Date"
-                                                className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-2 flex-1">
-                                            <Calendar className="text-gray-400 w-4 h-4" />
-                                            <input
-                                                type="date"
-                                                value={endDate}
-                                                onChange={(e) => setEndDate(e.target.value)}
-                                                placeholder="End Date"
-                                                className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
 
                         {performance && selectedName && (
                             <div className="space-y-6">
