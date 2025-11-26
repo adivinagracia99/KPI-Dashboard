@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -99,7 +99,66 @@
                 console.log('Employee:', name, 'Department: Unknown');
                 return 'Unknown';
             };
+         // State and Department Assignments with Goals
+            const employeeStateAssignments = {
+           // AR Department
+            'AD': 'Alaska', 'AB': 'Washington', 'BZ': 'California', 'GA': 'Alaska', 
+            'GG': 'Washington', 'HGB': 'California', 'IS': 'Alaska', 'JA': 'Washington', 
+            'JM': 'California', 'JS': 'Alaska', 'KM': 'Washington', 'LG': 'California', 
+            'MB': 'Alaska', 'MGS': 'Washington', 'NB': 'California', 'PT': 'Alaska', 
+            'RM': 'Washington', 'SPA': 'California', 'MCB': 'Alaska', 'MA': 'Washington', 
+            'VR': 'California', 'RD': 'Alaska', 'LSA': 'Washington',
+    
+            // Outbound Department
+            'AMD': 'Alaska', 'BM': 'Washington', 'CB': 'California', 'CC': 'Alaska', 
+            'CDC': 'Washington', 'DMA': 'California', 'ED': 'Alaska', 'EMP': 'Washington', 
+            'GC': 'California', 'GD': 'Alaska', 'GP': 'Washington', 'HMA': 'California', 
+            'IM': 'Alaska', 'ISC': 'Washington', 'JC': 'California', 'JI': 'Alaska', 
+            'JL': 'Washington', 'JP': 'California', 'JRC': 'Alaska', 'LL': 'Washington', 
+            'LV': 'California', 'NZ': 'Alaska', 'PB': 'Washington', 'RG': 'California', 
+            'SMS': 'Alaska', 'VL': 'Washington', 'WM': 'California',
+    
+            // Verification Department
+            'CF': 'Alaska', 'GZ': 'Washington', 'JCB': 'California', 'JTL': 'Alaska', 
+            'KR': 'Washington', 'MLC': 'California', 'RDS': 'Alaska'
+            };
 
+        // State Goals by Department
+            const stateGoals = {
+            'Alaska': {
+                collection: 50000,      // AR Department goal
+                production: 75000       // Outbound Department goal
+            },
+            'Washington': {
+                collection: 60000,      // AR Department goal
+                production: 85000       // Outbound Department goal
+            },
+            'California': {
+                collection: 70000,      // AR Department goal
+                production: 95000       // Outbound Department goal
+            }
+        };
+
+        // Helper function to get employee's state
+            const getEmployeeState = (name) => {
+            return employeeStateAssignments[name] || 'Unknown';
+        };
+
+        // Helper function to get state goal for an employee
+            const getEmployeeGoal = (name, type) => {
+            const state = getEmployeeState(name);
+            const dept = getDepartment(name);
+    
+            if (state === 'Unknown' || !stateGoals[state]) return 0;
+    
+            if (type === 'collection' && dept === 'AR Department') {
+                return stateGoals[state].collection;
+            } else if (type === 'production' && dept === 'Outbound Department') {
+                return stateGoals[state].production;
+            }
+            
+            return 0;
+        };
             const SHEET_ID = '1asg-4czF_ITFPxvBpyRcjMLjhjl6XGRk0_FLsrQ4D6g';
             const API_KEY = 'AIzaSyAeiFMlkhhDjEahdKksbS6HomSCbO9iQ50';
             const SHEET_NAME = 'Data';
@@ -595,3 +654,4 @@
     </script>
 </body>
 </html>
+
