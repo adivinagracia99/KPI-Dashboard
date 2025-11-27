@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -68,6 +68,7 @@
 
         const PerformanceTracker = () => {
             const [data, setData] = useState([]);
+            const [insPmtData, setInsPmtData] = useState([]);
             const [selectedName, setSelectedName] = useState('');
             const [startDate, setStartDate] = useState('');
             const [endDate, setEndDate] = useState('');
@@ -92,77 +93,75 @@
             const getDepartment = (name) => {
                 for (const [dept, names] of Object.entries(departments)) {
                     if (names.includes(name)) {
-                        console.log('Employee:', name, 'Department:', dept);
                         return dept;
                     }
                 }
-                console.log('Employee:', name, 'Department: Unknown');
                 return 'Unknown';
             };
-         // State and Department Assignments with Goals
+
             const employeeStateAssignments = {
-           // AR Department
-            'AD': 'Alaska', 'AB': 'Alaska', 'BZ': 'California', 'GA': 'Washington', 
-            'GG': 'Washington', 'HGB': 'Washington', 'IS': 'Washington', 'JA': 'Washington', 
-            'JM': 'Alaska', 'JS': 'California', 'KM': 'Washington', 'LG': 'Alaska', 
-            'MB': 'Washington', 'MGS': 'Washington', 'NB': 'California', 'PT': 'Alaska', 
-            'RM': 'Alaska', 'SPA': 'Washington', 'MCB': 'Washington', 'MA': 'Washington', 
-            'VR': 'Alaska', 'RD': 'Washington', 'LSA': 'Washington',
-    
-            // Outbound Department
-            'AMD': 'Washington', 'BM': 'Alaska', 'CB': 'Alaska', 'CC': 'Washington', 
-            'CDC': 'Washington', 'DMA': 'Alaska', 'ED': 'Washington', 'EMP': 'Alaska', 
-            'GC': 'Alaska', 'GD': 'Washington', 'GP': 'Washington', 'HMA': 'Washington', 
-            'IM': 'Washington', 'ISC': 'Washington', 'JC': 'Alaska', 'JI': 'Washington', 
-            'JL': 'Alaska', 'JP': 'Washington', 'JRC': 'Washington', 'LL': 'Washington', 
-            'LV': 'Washington', 'NZ': 'Alaska', 'PB': 'Alaska', 'RG': 'Washington', 
-            'SMS': 'Washington', 'VL': 'Washington', 'WM': 'Washington',
-    
-            // Verification Department
-            'CF': 'Alaska', 'GZ': 'Alaska', 'JCB': 'Washington', 'JTL': 'Washington', 
-            'KR': 'Washington', 'MLC': 'Alaska', 'RS': 'Washington'
+                // AR Department
+                'AD': 'Alaska', 'AB': 'Alaska', 'BZ': 'California', 'GA': 'Washington', 
+                'GG': 'Washington', 'HGB': 'Washington', 'IS': 'Washington', 'JA': 'Washington', 
+                'JM': 'Alaska', 'JS': 'California', 'KM': 'Washington', 'LG': 'Alaska', 
+                'MB': 'Washington', 'MGS': 'Washington', 'NB': 'California', 'PT': 'Alaska', 
+                'RM': 'Alaska', 'SPA': 'Washington', 'MCB': 'Washington', 'MA': 'Washington', 
+                'VR': 'Alaska', 'RD': 'Washington', 'LSA': 'Washington',
+        
+                // Outbound Department
+                'AMD': 'Washington', 'BM': 'Alaska', 'CB': 'Alaska', 'CC': 'Washington', 
+                'CDC': 'Washington', 'DMA': 'Alaska', 'ED': 'Washington', 'EMP': 'Alaska', 
+                'GC': 'Alaska', 'GD': 'Washington', 'GP': 'Washington', 'HMA': 'Washington', 
+                'IM': 'Washington', 'ISC': 'Washington', 'JC': 'Alaska', 'JI': 'Washington', 
+                'JL': 'Alaska', 'JP': 'Washington', 'JRC': 'Washington', 'LL': 'Washington', 
+                'LV': 'Washington', 'NZ': 'Alaska', 'PB': 'Alaska', 'RG': 'Washington', 
+                'SMS': 'Washington', 'VL': 'Washington', 'WM': 'Washington',
+        
+                // Verification Department
+                'CF': 'Alaska', 'GZ': 'Alaska', 'JCB': 'Washington', 'JTL': 'Washington', 
+                'KR': 'Washington', 'MLC': 'Alaska', 'RS': 'Washington'
             };
 
-        // State Goals by Department
             const stateGoals = {
-            'Alaska': {
-                collection: 50000,      // AR Department goal
-                production: 12628       // Outbound Department goal
-            },
-            'Washington': {
-                collection: 60000,      // AR Department goal
-                production: 11039       // Outbound Department goal
-            },
-            'California': {
-                collection: 70000,      // AR Department goal
-                production: 95000       // Outbound Department goal
-            }
-        };
+                'Alaska': {
+                    collection: 10389,
+                    production: 12628
+                },
+                'Washington': {
+                    collection: 11553,
+                    production: 11039
+                },
+                'California': {
+                    collection: 70000,
+                    production: 95000
+                }
+            };
 
-        // Helper function to get employee's state
             const getEmployeeState = (name) => {
-            return employeeStateAssignments[name] || 'Unknown';
-        };
+                return employeeStateAssignments[name] || 'Unknown';
+            };
 
-        // Helper function to get state goal for an employee
             const getEmployeeGoal = (name, type) => {
-            const state = getEmployeeState(name);
-            const dept = getDepartment(name);
-    
-            if (state === 'Unknown' || !stateGoals[state]) return 0;
-    
-            if (type === 'collection' && dept === 'AR Department') {
-                return stateGoals[state].collection;
-            } else if (type === 'production' && dept === 'Outbound Department') {
-                return stateGoals[state].production;
-            }
-            
-            return 0;
-        };
+                const state = getEmployeeState(name);
+                const dept = getDepartment(name);
+        
+                if (state === 'Unknown' || !stateGoals[state]) return 0;
+        
+                if (type === 'collection' && dept === 'AR Department') {
+                    return stateGoals[state].collection;
+                } else if (type === 'production' && dept === 'Outbound Department') {
+                    return stateGoals[state].production;
+                }
+                
+                return 0;
+            };
+
             const SHEET_ID = '1asg-4czF_ITFPxvBpyRcjMLjhjl6XGRk0_FLsrQ4D6g';
             const API_KEY = 'AIzaSyAeiFMlkhhDjEahdKksbS6HomSCbO9iQ50';
             const SHEET_NAME = 'Data';
+            const SHEET_NAME_2 = 'Ins Pmt';
             const RANGE = 'A:I';
+            const RANGE_INS_PMT = 'A:G';
 
             const tasksList = [
                 'Outstanding Claims',
@@ -200,28 +199,18 @@
                 'Miscellaneous Tasks'
             ];
 
-            // Mapping of original task names to standardized task names
             const taskMapping = {
-                // Aging tasks map to Outstanding Claims
                 'aging- closed denied claims': 'Outstanding Claims',
                 'aging- closed paid claims': 'Outstanding Claims',
                 'aging- resubmit claims': 'Outstanding Claims',
                 'aging- review claims': 'Outstanding Claims',
                 'aging- voided claims': 'Outstanding Claims',
-                
-                // Billing calls
                 'billing- inbound call': 'Billing Call',
                 'billing- outbound call': 'Billing Call',
-                
-                // PA/SA
                 'receiving pre-determination (pa)': 'Receiving PA/SA',
                 'receiving service authorization (sa)': 'Receiving PA/SA',
-                
-                // Sending Claims
                 'sending medicaid claims': 'Sending Claims',
                 'sending private claims': 'Sending Claims',
-                
-                // Verification tasks
                 'verification (m)': 'Verification',
                 'verification (p)': 'Verification',
                 'verification tracker update': 'Verification',
@@ -234,7 +223,6 @@
                 taskLookup[taskName.toLowerCase().trim()] = taskName;
             });
             
-            // Add mappings to lookup
             Object.entries(taskMapping).forEach(([original, standard]) => {
                 taskLookup[original] = standard;
             });
@@ -244,28 +232,42 @@
                 setError('');
                 
                 try {
-                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!${RANGE}?key=${API_KEY}`;
-                    const response = await fetch(url);
+                    // Fetch Data sheet
+                    const url1 = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!${RANGE}?key=${API_KEY}`;
+                    const response1 = await fetch(url1);
                     
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch data: ${response.statusText}`);
+                    if (!response1.ok) {
+                        throw new Error(`Failed to fetch Data sheet: ${response1.statusText}`);
                     }
                     
-                    const result = await response.json();
-                    const rows = result.values || [];
+                    const result1 = await response1.json();
+                    const rows1 = result1.values || [];
                     
-                    if (rows.length === 0) {
-                        throw new Error('No data found in the sheet');
+                    // Fetch Ins Pmt sheet
+                    const url2 = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME_2}!${RANGE_INS_PMT}?key=${API_KEY}`;
+                    const response2 = await fetch(url2);
+                    
+                    if (!response2.ok) {
+                        throw new Error(`Failed to fetch Ins Pmt sheet: ${response2.statusText}`);
+                    }
+                    
+                    const result2 = await response2.json();
+                    const rows2 = result2.values || [];
+                    
+                    if (rows1.length === 0 && rows2.length === 0) {
+                        throw new Error('No data found in either sheet');
                     }
 
-                    const parsedData = rows.slice(1)
+                    // Parse Data sheet
+                    const parsedData = rows1.slice(1)
                         .map(row => ({
                             date: row[0] || '',
                             task: row[3] || '',
                             amount: row[4] || '',
                             collectionAmount: row[5] || '',
                             name: row[8] || '',
-                            office: row[2] || ''
+                            office: row[2] || '',
+                            source: 'Data'
                         }))
                         .filter(row => {
                             if (!row.name || !row.name.trim() || !row.task || !row.task.trim() || !row.date || !row.date.trim()) {
@@ -275,17 +277,37 @@
                             return allAllowedNames.includes(cleanName);
                         });
 
-                    console.log('Sample data rows:', parsedData.slice(0, 5));
+                    // Parse Ins Pmt sheet (column C=date, E=amount, G=name)
+                    const parsedInsPmt = rows2.slice(1)
+                        .map(row => ({
+                            date: row[2] || '', // Column C
+                            amount: row[4] || '', // Column E
+                            name: row[6] || '', // Column G
+                            source: 'InsPmt'
+                        }))
+                        .filter(row => {
+                            if (!row.name || !row.name.trim() || !row.date || !row.date.trim() || !row.amount || !row.amount.toString().trim()) {
+                                return false;
+                            }
+                            let cleanName = row.name.trim().replace(/^["']|["']$/g, '');
+                            return allAllowedNames.includes(cleanName);
+                        });
+
+                    console.log('Sample Data sheet rows:', parsedData.slice(0, 5));
+                    console.log('Sample Ins Pmt sheet rows:', parsedInsPmt.slice(0, 5));
 
                     setData(parsedData);
+                    setInsPmtData(parsedInsPmt);
                     
-                    const names = [...new Set(parsedData.map(row => {
-                        let name = row.name.trim();
-                        name = name.replace(/^["']|["']$/g, '');
-                        return name;
-                    }))]
-                    .filter(n => allAllowedNames.includes(n))
-                    .sort();
+                    // Get unique names from both sheets
+                    const allNames = [
+                        ...parsedData.map(row => row.name.trim().replace(/^["']|["']$/g, '')),
+                        ...parsedInsPmt.map(row => row.name.trim().replace(/^["']|["']$/g, ''))
+                    ];
+                    
+                    const names = [...new Set(allNames)]
+                        .filter(n => allAllowedNames.includes(n))
+                        .sort();
                     
                     setUniqueNames(names);
                     setLastUpdated(new Date());
@@ -323,515 +345,575 @@
                 return null;
             };
 
-              // Helper function to calculate state-wide task goals
-const calculateStateTaskGoals = (allData, state, department) => {
-    if (department !== 'AR Department') return {};
-    
-    // Get all employees in the same state and department
-    const stateEmployees = allAllowedNames.filter(name => {
-        return getEmployeeState(name) === state && getDepartment(name) === 'AR Department';
-    });
-    
-    console.log(`Calculating goals for ${state} AR Department:`, stateEmployees);
-    
-    // Count tasks per employee
-    const employeeTaskCounts = {};
-    stateEmployees.forEach(emp => {
-        employeeTaskCounts[emp] = {};
-    });
-    
-    // Process all data
-    allData.forEach(row => {
-        let rowName = row.name.trim().replace(/^["']|["']$/g, '');
-        if (!stateEmployees.includes(rowName)) return;
-        
-        const taskName = row.task.trim();
-        const standardTaskName = findTaskName(taskName);
-        
-        if (standardTaskName && arTaskWeights[standardTaskName]) {
-            employeeTaskCounts[rowName][standardTaskName] = 
-                (employeeTaskCounts[rowName][standardTaskName] || 0) + 1;
-        }
-    });
-    
-    // Calculate totals and averages for each task
-    const stateTaskGoals = {};
-    Object.keys(arTaskWeights).forEach(taskName => {
-        let totalCount = 0;
-        stateEmployees.forEach(emp => {
-            totalCount += (employeeTaskCounts[emp][taskName] || 0);
-        });
-        
-        const average = stateEmployees.length > 0 ? totalCount / stateEmployees.length : 0;
-        stateTaskGoals[taskName] = average;
-        
-        console.log(`${taskName}: Total=${totalCount}, Employees=${stateEmployees.length}, Goal=${average.toFixed(2)}`);
-    });
-    
-    return stateTaskGoals;
-};
-
-const arTaskWeights = {
-    'Outstanding Claims': 9.3,
-    'Sending Claims': 9.3,
-    'Rejected Claims Resubmission': 9.3,
-    'Claims Attachments': 9.3,
-    'Finalizing Pt\'s Ledger': 9.3,
-    'Sending Appeal/MJ': 7.25,
-    'Sending Statements': 7.25,
-    'Claims Not Sent': 6,
-    'Entering Payments': 6,
-    'Procedure Not Billed (Sent/Batched)': 6,
-    'Receiving PA/SA': 6,
-    'Billing Call': 3,
-    'Entering Kleer Payments': 3,
-    'Sending to Collection Agency': 3,
-    'Retrieving EOBs/eChecks': 3,
-    'Entering EOBs': 3
-};
-
-const calculatePerformance = () => {
-    if (!selectedName) return null;
-
-    let filtered = data.filter(row => {
-        let rowName = row.name.trim().replace(/^["']|["']$/g, '');
-        return rowName === selectedName;
-    });
-    
-    // Calculate number of days in date range
-    let numberOfDays = 1;
-    if (startDate && endDate) {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        numberOfDays = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1);
-    } else if (startDate || endDate) {
-        numberOfDays = 1;
-    } else {
-        // If no date filter, count unique dates in the data
-        const uniqueDates = new Set();
-        filtered.forEach(row => {
-            const rowDate = parseDate(row.date);
-            if (rowDate) {
-                uniqueDates.add(rowDate.toDateString());
-            }
-        });
-        numberOfDays = Math.max(1, uniqueDates.size);
-    }
-    
-    if (startDate) {
-        const startDateObj = new Date(startDate);
-        startDateObj.setHours(0, 0, 0, 0);
-        filtered = filtered.filter(row => {
-            const rowDate = parseDate(row.date);
-            return rowDate && rowDate >= startDateObj;
-        });
-    }
-    
-    if (endDate) {
-        const endDateObj = new Date(endDate);
-        endDateObj.setHours(23, 59, 59, 999);
-        filtered = filtered.filter(row => {
-            const rowDate = parseDate(row.date);
-            return rowDate && rowDate <= endDateObj;
-        });
-    }
-
-    const taskCounts = {};
-    const unlistedTasks = {};
-    let totalCollectionAmount = 0;
-    let totalProductionAmount = 0;
-    let totalTasks = 0;
-    let totalAppointments = 0;
-    let totalCalls = 0;
-    
-    // Determine which department the selected employee belongs to
-    const userDepartment = getDepartment(selectedName);
-    const userState = getEmployeeState(selectedName);
-    
-    // Calculate state-wide task goals for AR Department
-    const stateTaskGoals = calculateStateTaskGoals(data, userState, userDepartment);
-    
-    filtered.forEach(row => {
-        const taskName = row.task.trim();
-        const taskLower = taskName.toLowerCase();
-        const standardTaskName = findTaskName(taskName);
-        
-        if (standardTaskName) {
-            taskCounts[standardTaskName] = (taskCounts[standardTaskName] || 0) + 1;
-            totalTasks++;
-        } else {
-            // Track unlisted tasks
-            unlistedTasks[taskName] = (unlistedTasks[taskName] || 0) + 1;
-            totalTasks++;
-        }
-        
-        // Count appointments for Outbound Department
-        if (userDepartment === 'Outbound Department') {
-            if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') {
-                totalAppointments++;
-            }
-            
-            // Count calls for Outbound Department
-            if (standardTaskName === 'Inbound Call' || standardTaskName === 'Outbound Call') {
-                totalCalls++;
-            }
-        }
-        
-        // Only count collection amounts for AR Department
-        if (userDepartment === 'AR Department' && taskLower === 'collection' && row.collectionAmount && row.collectionAmount.toString().trim()) {
-            const cleanAmount = row.collectionAmount.toString().replace(/[$,\s]/g, '').trim();
-            const amount = parseFloat(cleanAmount);
-            if (!isNaN(amount) && amount > 0) {
-                totalCollectionAmount += amount;
-            }
-        }
-        
-        // Only count production amounts for Outbound Department
-        if (userDepartment === 'Outbound Department' && taskLower === 'production' && row.amount && row.amount.toString().trim()) {
-            const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
-            const amount = parseFloat(cleanAmount);
-            if (!isNaN(amount) && amount > 0) {
-                totalProductionAmount += amount;
-            }
-        }
-    });
-
-    const sortedTasks = Object.entries(taskCounts).sort((a, b) => a[0].localeCompare(b[0]));
-    const sortedUnlistedTasks = Object.entries(unlistedTasks).sort((a, b) => a[0].localeCompare(b[0]));
-    
-    let overallPerformance = 0;
-    let taskPerformance = 0;
-    let collectionPerformance = 0;
-    
-    // Calculate performance based on department
-    if (userDepartment === 'Outbound Department') {
-        // Outbound: Average of Appointments, Calls, and Production
-        const appointmentGoal = 20 * numberOfDays;
-        const callGoal = 100 * numberOfDays;
-        const productionGoal = getEmployeeGoal(selectedName, 'production');
-        
-        const appointmentPerformance = appointmentGoal > 0 ? (totalAppointments / appointmentGoal) * 100 : 0;
-        const callPerformance = callGoal > 0 ? (totalCalls / callGoal) * 100 : 0;
-        const productionPerformance = productionGoal > 0 ? (totalProductionAmount / productionGoal) * 100 : 0;
-        
-        overallPerformance = ((appointmentPerformance + callPerformance + productionPerformance) / 3);
-        
-        console.log('=== OUTBOUND PERFORMANCE CALCULATION ===');
-        console.log('Days in range:', numberOfDays);
-        console.log('Appointments:', totalAppointments, '/ Goal:', appointmentGoal, '=', appointmentPerformance.toFixed(1) + '%');
-        console.log('Calls:', totalCalls, '/ Goal:', callGoal, '=', callPerformance.toFixed(1) + '%');
-        console.log('Production: $' + totalProductionAmount, '/ Goal: $' + productionGoal, '=', productionPerformance.toFixed(1) + '%');
-        console.log('Overall:', overallPerformance.toFixed(1) + '%');
-        
-    } else if (userDepartment === 'AR Department') {
-        // AR Department: Weighted task performance based on state goals + Collection performance
-        let weightedTaskScore = 0;
-        
-        console.log('=== AR DEPARTMENT PERFORMANCE CALCULATION ===');
-        console.log('Employee:', selectedName, '| State:', userState);
-        console.log('State Task Goals:', stateTaskGoals);
-        
-        // Calculate weighted task performance based on state goals
-        Object.entries(taskCounts).forEach(([taskName, count]) => {
-            if (arTaskWeights[taskName] && stateTaskGoals[taskName]) {
-                const goal = stateTaskGoals[taskName];
+            const shiftWeekendToWeekday = (date) => {
+                if (!date) return null;
+                const dayOfWeek = date.getDay();
+                const newDate = new Date(date);
                 
-                // Calculate performance for this task (capped at 100%)
-                const taskPerformancePercent = goal > 0 ? Math.min((count / goal) * 100, 100) : 0;
+                // If Sunday (0), shift to Monday
+                if (dayOfWeek === 0) {
+                    newDate.setDate(newDate.getDate() + 1);
+                }
+                // If Saturday (6), shift to Friday
+                else if (dayOfWeek === 6) {
+                    newDate.setDate(newDate.getDate() - 1);
+                }
                 
-                // Weight it by the task's weight
-                const weightedScore = (taskPerformancePercent / 100) * arTaskWeights[taskName];
-                weightedTaskScore += weightedScore;
-                
-                console.log(`${taskName}: Count=${count}, Goal=${goal.toFixed(2)}, Performance=${taskPerformancePercent.toFixed(1)}%, Weighted=${weightedScore.toFixed(2)}%`);
-            }
-        });
-        
-        taskPerformance = weightedTaskScore;
-        
-        // Calculate collection performance
-        const collectionGoal = getEmployeeGoal(selectedName, 'collection') * numberOfDays;
-        collectionPerformance = collectionGoal > 0 ? Math.min((totalCollectionAmount / collectionGoal) * 100, 100) : 0;
-        
-        // Overall performance is average of task and collection performance
-        overallPerformance = (taskPerformance + collectionPerformance) / 2;
-        
-        console.log('Collection: $' + totalCollectionAmount, '/ Goal: $' + collectionGoal, '=', collectionPerformance.toFixed(1) + '%');
-        console.log('Task Performance:', taskPerformance.toFixed(1) + '%');
-        console.log('Collection Performance:', collectionPerformance.toFixed(1) + '%');
-        console.log('Overall:', overallPerformance.toFixed(1) + '%');
-        
-    } else {
-        // Verification: Based on unique tasks completed
-        overallPerformance = tasksList.length > 0 ? ((Object.keys(taskCounts).length / tasksList.length) * 100) : 0;
-    }
-    
-    return {
-        taskCounts: sortedTasks,
-        unlistedTasks: sortedUnlistedTasks,
-        totalCollectionAmount: totalCollectionAmount.toFixed(2),
-        totalProductionAmount: totalProductionAmount.toFixed(2),
-        overallPerformance: Math.round(overallPerformance),
-        taskPerformance: Math.round(taskPerformance),
-        collectionPerformance: Math.round(collectionPerformance),
-        totalTasks: totalTasks,
-        department: userDepartment,
-        state: userState,
-        // Outbound-specific metrics
-        totalAppointments: totalAppointments,
-        totalCalls: totalCalls,
-        numberOfDays: numberOfDays,
-        appointmentGoal: userDepartment === 'Outbound Department' ? 20 * numberOfDays : null,
-        callGoal: userDepartment === 'Outbound Department' ? 100 * numberOfDays : null,
-        collectionGoal: userDepartment === 'AR Department' ? getEmployeeGoal(selectedName, 'collection') * numberOfDays : null
-    };
-};
-
-            const getPerformanceColor = (percentage) => {
-                const hue = (percentage / 100) * 60;
-                return `hsl(${hue}, 85%, 50%)`;
+                return newDate;
             };
 
-            const performance = calculatePerformance();
-            
-            // Debug logging
-            if (performance && selectedName) {
-                console.log('=== DEBUG INFO ===');
-                console.log('Selected Name:', selectedName);
-                console.log('Department:', performance.department);
-                console.log('Should show Collections:', performance.department === 'AR Department');
-                console.log('Should show Production:', performance.department === 'Outbound Department');
-                console.log('==================');
+            const countWorkingDays = (startDate, endDate) => {
+                if (!startDate || !endDate) return 0;
+                
+                let count = 0;
+                let current = new Date(startDate);
+                
+                while (current <= endDate) {
+                    const dayOfWeek = current.getDay();
+                    // Count only Monday (1) to Friday (5)
+                    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                        count++;
+                    }
+                    current.setDate(current.getDate() + 1);
+                }
+                
+                return count;
+            };
+
+            const arTaskWeights = {
+                'Outstanding Claims': 9.3,
+                'Sending Claims': 9.3,
+                'Rejected Claims Resubmission': 9.3,
+                'Claims Attachments': 9.3,
+                'Finalizing Pt\'s Ledger': 9.3,
+                'Sending Appeal/MJ': 7.25,
+                'Sending Statements': 7.25,
+                'Claims Not Sent': 6,
+                'Entering Payments': 6,
+                'Procedure Not Billed (Sent/Batched)': 6,
+                'Receiving PA/SA': 6,
+                'Billing Call': 3,
+                'Entering Kleer Payments': 3,
+                'Sending to Collection Agency': 3,
+                'Retrieving EOBs/eChecks': 3,
+                'Entering EOBs': 3
+            };
+
+            const calculatePerformance = () => {
+                if (!selectedName) return null;
+
+                let filtered = data.filter(row => {
+                    let rowName = row.name.trim().replace(/^["']|["']$/g, '');
+                    return rowName === selectedName;
+                });
+                
+                // Filter Ins Pmt data for collection amounts
+                let filteredInsPmt = insPmtData.filter(row => {
+                    let rowName = row.name.trim().replace(/^["']|["']$/g, '');
+                    return rowName === selectedName;
+                });
+                
+                // Calculate number of WORKING days in date range
+                let numberOfDays = 1;
+                if (startDate && endDate) {
+                    const start = new Date(startDate);
+                    const end = new Date(endDate);
+                    numberOfDays = Math.max(1, countWorkingDays(start, end));
+                } else if (startDate || endDate) {
+                    numberOfDays = 1;
+                } else {
+                    // If no date filter, count unique WORKING dates in the data (with weekend shift)
+                    const uniqueDates = new Set();
+                    filtered.forEach(row => {
+                        const rowDate = parseDate(row.date);
+                        if (rowDate) {
+                            const shiftedDate = shiftWeekendToWeekday(rowDate);
+                            if (shiftedDate) {
+                                uniqueDates.add(shiftedDate.toDateString());
+                            }
+                        }
+                    });
+                    filteredInsPmt.forEach(row => {
+                        const rowDate = parseDate(row.date);
+                        if (rowDate) {
+                            const shiftedDate = shiftWeekendToWeekday(rowDate);
+                            if (shiftedDate) {
+                                uniqueDates.add(shiftedDate.toDateString());
+                            }
+                        }
+                    });
+                    numberOfDays = Math.max(1, uniqueDates.size);
+                }
+                
+                // Apply date filters
+                if (startDate) {
+                    const startDateObj = new Date(startDate);
+                    startDateObj.setHours(0, 0, 0, 0);
+                    filtered = filtered.filter(row => {
+                        const rowDate = parseDate(row.date);
+                        return rowDate && rowDate >= startDateObj;
+                    });
+                    filteredInsPmt = filteredInsPmt.filter(row => {
+                        const rowDate = parseDate(row.date);
+                        return rowDate && rowDate >= startDateObj;
+                    });
+                }
+                
+                if (endDate) {
+                    const endDateObj = new Date(endDate);
+                    endDateObj.setHours(23, 59, 59, 999);
+                    filtered = filtered.filter(row => {
+                        const rowDate = parseDate(row.date);
+                        return rowDate && rowDate <= endDateObj;
+                    });
+                    filteredInsPmt = filteredInsPmt.filter(row => {
+                        const rowDate = parseDate(row.date);
+                        return rowDate && rowDate <= endDateObj;
+                    });
+                }
+
+                const taskCounts = {};
+                const unlistedTasks = {};
+                let totalCollectionAmount = 0;
+                let totalProductionAmount = 0;
+                let totalTasks = 0;
+                let totalAppointments = 0;
+                let totalCalls = 0;
+                
+                // Determine which department the selected employee belongs to
+                const userDepartment = getDepartment(selectedName);
+                const userState = getEmployeeState(selectedName);
+                
+                // Process Data sheet entries
+                filtered.forEach(row => {
+                    const taskName = row.task.trim();
+                    const taskLower = taskName.toLowerCase();
+                    const standardTaskName = findTaskName(taskName);
+                    
+                    // Count tasks based on column E (amount) value
+                    if (row.amount && row.amount.toString().trim()) {
+                        const amountValue = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                        if (!isNaN(amountValue) && amountValue > 0) {
+                            if (standardTaskName) {
+                                taskCounts[standardTaskName] = (taskCounts[standardTaskName] || 0) + amountValue;
+                                totalTasks += amountValue;
+                            } else {
+                                unlistedTasks[taskName] = (unlistedTasks[taskName] || 0) + amountValue;
+                                totalTasks += amountValue;
+                            }
+                        }
+                    }
+                    
+                    // Count appointments for Outbound Department
+                    if (userDepartment === 'Outbound Department') {
+                        if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') {
+                            const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
+                            if (!isNaN(amountValue) && amountValue > 0) {
+                                totalAppointments += amountValue;
+                            }
+                        }
+                        
+                        // Count calls for Outbound Department
+                        if (standardTaskName === 'Inbound Call' || standardTaskName === 'Outbound Call') {
+                            const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
+                            if (!isNaN(amountValue) && amountValue > 0) {
+                                totalCalls += amountValue;
+                            }
+                        }
+                    }
+                    
+                    // Collection amounts for AR Department from Data sheet (Column F)
+                    if (userDepartment === 'AR Department' && taskLower === 'collection') {
+                        if (row.collectionAmount && row.collectionAmount.toString().trim()) {
+                            const cleanAmount = row.collectionAmount.toString().replace(/[$,\s]/g, '').trim();
+                            const amount = parseFloat(cleanAmount);
+                            if (!isNaN(amount) && amount > 0) {
+                                totalCollectionAmount += amount;
+                            }
+                        }
+                    }
+                    
+                    // Production amounts for Outbound Department
+                    if (userDepartment === 'Outbound Department' && taskLower === 'production' && row.amount && row.amount.toString().trim()) {
+                        const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
+                        const amount = parseFloat(cleanAmount);
+                        if (!isNaN(amount) && amount > 0) {
+                            totalProductionAmount += amount;
+                        }
+                    }
+                });
+
+                // Process Ins Pmt sheet for collection amounts (AR Department only)
+                if (userDepartment === 'AR Department') {
+                    filteredInsPmt.forEach(row => {
+                        if (row.amount && row.amount.toString().trim()) {
+                            const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
+                            const amount = parseFloat(cleanAmount);
+                            if (!isNaN(amount) && amount > 0) {
+                                totalCollectionAmount += amount;
+                            }
+                        }
+                    });
+                }
+
+                const sortedTasks = Object.entries(taskCounts).sort((a, b) => a[0].localeCompare(b[0]));
+                const sortedUnlistedTasks = Object.entries(unlistedTasks).sort((a, b) => a[0].localeCompare(b[0]));
+                
+                let overallPerformance = 0;
+                let taskPerformance = 0;
+                let collectionPerformance = 0;
+                
+                // Calculate performance based on department
+                if (userDepartment === 'Outbound Department') {
+                    // Outbound: Average of Appointments, Calls, and Production
+                    const appointmentGoal = 20 * numberOfDays;
+                    const callGoal = 100 * numberOfDays;
+                    const productionGoal = getEmployeeGoal(selectedName, 'production') * numberOfDays;
+                    
+                    const appointmentPerformance = appointmentGoal > 0 ? (totalAppointments / appointmentGoal) * 100 : 0;
+                    const callPerformance = callGoal > 0 ? (totalCalls / callGoal) * 100 : 0;
+                    const productionPerformance = productionGoal > 0 ? (totalProductionAmount / productionGoal) * 100 : 0;
+                    
+                    overallPerformance = Math.min(100, ((appointmentPerformance + callPerformance + productionPerformance) / 3));
+                    
+                    console.log('=== OUTBOUND PERFORMANCE CALCULATION ===');
+                    console.log('Working Days in range:', numberOfDays);
+                    console.log('Appointments:', totalAppointments, '/ Goal:', appointmentGoal, '=', appointmentPerformance.toFixed(1) + '%');
+                    console.log('Calls:', totalCalls, '/ Goal:', callGoal, '=', callPerformance.toFixed(1) + '%');
+                    console.log('Production: $' + totalProductionAmount, '/ Goal: $' + productionGoal, '=', productionPerformance.toFixed(1) + '%');
+                    console.log('Overall:', overallPerformance.toFixed(1) + '%');
+                    
+                } else if (userDepartment === 'AR Department') {
+                    // AR Department: 100% based on collection amounts from both sheets
+                    const collectionGoal = getEmployeeGoal(selectedName, 'collection') * numberOfDays;
+                    collectionPerformance = collectionGoal > 0 ? (totalCollectionAmount / collectionGoal) * 100 : 0;
+                    
+                    // Overall performance is entirely based on collections (capped at 100%)
+                    overallPerformance = Math.min(100, collectionPerformance);
+                    
+                    console.log('=== AR DEPARTMENT PERFORMANCE CALCULATION ===');
+                    console.log('Employee:', selectedName, '| State:', userState);
+                    console.log('Working Days in range:', numberOfDays);
+                    console.log('Collection from Data sheet: $' + filtered.reduce((sum, row) => {
+                        const taskLower = row.task.trim().toLowerCase();
+                        if (taskLower === 'collection' && row.collectionAmount && row.collectionAmount.toString().trim()) {
+                            const cleanAmount = row.collectionAmount.toString().replace(/[$,\s]/g, '').trim();
+                            const amount = parseFloat(cleanAmount);
+                            return sum + ((!isNaN(amount) && amount > 0) ? amount : 0);
+                        }
+                        return sum;
+                    }, 0).toFixed(2));
+                    console.log('Collection from Ins Pmt sheet: $' + filteredInsPmt.reduce((sum, row) => {
+                        if (row.amount && row.amount.toString().trim()) {
+                            const cleanAmount = row.amount.toString().
+replace(/[$,\s]/g, '').trim();
+const amount = parseFloat(cleanAmount);
+return sum + ((!isNaN(amount) && amount > 0) ? amount : 0);
+}
+return sum;
+}, 0).toFixed(2));
+console.log('Total Collection: $' + totalCollectionAmount.toFixed(2));
+console.log('Collection Goal: $' + collectionGoal.toFixed(2));
+console.log('Collection Performance:', collectionPerformance.toFixed(1) + '%');
+console.log('Overall:', overallPerformance.toFixed(1) + '%');
+} else if (userDepartment === 'Verification Department') {
+                // Verification: Based on unique tasks completed (capped at 100%)
+                overallPerformance = Math.min(100, tasksList.length > 0 ? ((Object.keys(taskCounts).length / tasksList.length) * 100) : 0);
             }
+            
+            return {
+                taskCounts: sortedTasks,
+                unlistedTasks: sortedUnlistedTasks,
+                totalCollectionAmount: totalCollectionAmount.toFixed(2),
+                totalProductionAmount: totalProductionAmount.toFixed(2),
+                overallPerformance: Math.round(overallPerformance),
+                taskPerformance: Math.round(taskPerformance),
+                collectionPerformance: Math.round(collectionPerformance),
+                totalTasks: Math.round(totalTasks),
+                department: userDepartment,
+                state: userState,
+                // Outbound-specific metrics
+                totalAppointments: totalAppointments,
+                totalCalls: totalCalls,
+                numberOfDays: numberOfDays,
+                appointmentGoal: userDepartment === 'Outbound Department' ? 20 * numberOfDays : null,
+                callGoal: userDepartment === 'Outbound Department' ? 100 * numberOfDays : null,
+                collectionGoal: userDepartment === 'AR Department' ? getEmployeeGoal(selectedName, 'collection') * numberOfDays : null,
+                productionGoal: userDepartment === 'Outbound Department' ? getEmployeeGoal(selectedName, 'production') * numberOfDays : null
+            };
+        };
 
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
-                    <div className="max-w-6xl mx-auto">
-                        <div className="text-center mb-8">
-                            <div className="flex items-center justify-center gap-3 mb-4">
-                                <Calculator />
-                                <h1 className="text-4xl font-bold text-white">KPI Dashboard</h1>
-                            </div>
-                            <p className="text-gray-400">Real-time Task Tracking from Google Sheets</p>
+        const getPerformanceColor = (percentage) => {
+            const hue = (percentage / 100) * 60;
+            return `hsl(${hue}, 85%, 50%)`;
+        };
+
+        const performance = calculatePerformance();
+
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
+                <div className="max-w-6xl mx-auto">
+                    <div className="text-center mb-8">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <Calculator />
+                            <h1 className="text-4xl font-bold text-white">KPI Dashboard</h1>
                         </div>
+                        <p className="text-gray-400">Real-time Task Tracking from Google Sheets</p>
+                    </div>
 
-                        <div className="bg-slate-800 rounded-xl shadow-lg p-5 mb-6 border border-slate-700">
-                            <div className="flex items-center justify-between gap-6 flex-wrap">
-                                <div className="flex items-center gap-4 flex-1 min-w-[600px]">
-                                    <div className="flex items-center gap-2 text-white font-semibold">
-                                        <Filter className="w-5 h-5" />
-                                        <span className="text-lg">Filters</span>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2 flex-1">
-                                        <User className="text-gray-400 w-4 h-4" />
-                                        <select
-                                            value={selectedName}
-                                            onChange={(e) => setSelectedName(e.target.value)}
-                                            className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        >
-                                            <option value="">Select Employee</option>
-                                            {uniqueNames.map(name => (
-                                                <option key={name} value={name}>{name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2 flex-1">
-                                        <Calendar className="text-gray-400 w-4 h-4" />
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2 flex-1">
-                                        <Calendar className="text-gray-400 w-4 h-4" />
-                                        <input
-                                            type="date"
-                                            value={endDate}
-                                            onChange={(e) => setEndDate(e.target.value)}
-                                            className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                    </div>
+                    <div className="bg-slate-800 rounded-xl shadow-lg p-5 mb-6 border border-slate-700">
+                        <div className="flex items-center justify-between gap-6 flex-wrap">
+                            <div className="flex items-center gap-4 flex-1 min-w-[600px]">
+                                <div className="flex items-center gap-2 text-white font-semibold">
+                                    <Filter className="w-5 h-5" />
+                                    <span className="text-lg">Filters</span>
                                 </div>
-
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-3">
-                                        <RefreshCw className="w-5 h-5 text-blue-400" />
-                                        <div className="flex flex-col">
-                                            <span className="text-lg font-bold text-white">Data Status</span>
-                                            {lastUpdated && (
-                                                <span className="text-xs text-gray-400">
-                                                    Updated: {lastUpdated.toLocaleTimeString()} • <span className="text-green-400">✓ {data.length} records</span>
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    
-                                    <button
-                                        onClick={fetchDataFromSheet}
-                                        disabled={loading}
-                                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors whitespace-nowrap"
+                                
+                                <div className="flex items-center gap-2 flex-1">
+                                    <User className="text-gray-400 w-4 h-4" />
+                                    <select
+                                        value={selectedName}
+                                        onChange={(e) => setSelectedName(e.target.value)}
+                                        className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     >
-                                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                                        {loading ? 'Refreshing...' : 'Refresh'}
-                                    </button>
+                                        <option value="">Select Employee</option>
+                                        {uniqueNames.map(name => (
+                                            <option key={name} value={name}>{name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                
+                                <div className="flex items-center gap-2 flex-1">
+                                    <Calendar className="text-gray-400 w-4 h-4" />
+                                    <input
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+                                
+                                <div className="flex items-center gap-2 flex-1">
+                                    <Calendar className="text-gray-400 w-4 h-4" />
+                                    <input
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        className="flex-1 p-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
                                 </div>
                             </div>
-                            
-                            {error && (
-                                <div className="mt-3 text-sm text-red-400 flex items-center gap-2">
-                                    <AlertCircle className="w-4 h-4" />
-                                    {error}
-                                </div>
-                            )}
-                        </div>
 
-                        {performance && selectedName && (
-                            <div className="space-y-6">
-                                <div className="grid md:grid-cols-3 gap-6">
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-3">
+                                    <RefreshCw className="w-5 h-5 text-blue-400" />
+                                    <div className="flex flex-col">
+                                        <span className="text-lg font-bold text-white">Data Status</span>
+                                        {lastUpdated && (
+                                            <span className="text-xs text-gray-400">
+                                                Updated: {lastUpdated.toLocaleTimeString()} • <span className="text-green-400">✓ {data.length + insPmtData.length} records</span>
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <button
+                                    onClick={fetchDataFromSheet}
+                                    disabled={loading}
+                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors whitespace-nowrap"
+                                >
+                                    <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                                    {loading ? 'Refreshing...' : 'Refresh'}
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {error && (
+                            <div className="mt-3 text-sm text-red-400 flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4" />
+                                {error}
+                            </div>
+                        )}
+                    </div>
+
+                    {performance && selectedName && (
+                        <div className="space-y-6">
+                            <div className="grid md:grid-cols-3 gap-6">
+                                {/* Card 1 - AR shows Collection, Outbound shows Production */}
+                                {performance.department === 'AR Department' ? (
                                     <div className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-600 rounded-2xl shadow-2xl p-6 border-2 border-emerald-400/50">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
                                         <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full -ml-12 -mb-12"></div>
                                         <div className="relative">
                                             <p className="text-emerald-100 text-sm font-medium mb-1">Total Balance Collected</p>
                                             <p className="text-white font-bold text-4xl tracking-tight">
-                                                {performance.totalCollectionAmount > 0 
-                                                    ? `${parseFloat(performance.totalCollectionAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                                                    : '$0.00'
-                                                }
+                                                ${parseFloat(performance.totalCollectionAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </p>
                                         </div>
                                     </div>
-
-                                    <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl shadow-2xl p-6 border-2 border-blue-400/50">
+                                ) : performance.department === 'Outbound Department' ? (
+                                    <div className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-600 rounded-2xl shadow-2xl p-6 border-2 border-emerald-400/50">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
                                         <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full -ml-12 -mb-12"></div>
                                         <div className="relative">
-                                            <p className="text-blue-100 text-sm font-medium mb-1">Total Completed Production</p>
+                                            <p className="text-emerald-100 text-sm font-medium mb-1">Total Completed Production</p>
                                             <p className="text-white font-bold text-4xl tracking-tight">
-                                                {performance.totalProductionAmount > 0 
-                                                    ? `${parseFloat(performance.totalProductionAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                                                    : '$0.00'
-                                                }
+                                                ${parseFloat(performance.totalProductionAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </p>
                                         </div>
                                     </div>
-
-                                    <div 
-                                        className="relative overflow-hidden rounded-2xl shadow-2xl p-6 border-2 transition-all duration-500"
-                                        style={{
-                                            backgroundColor: getPerformanceColor(performance.overallPerformance),
-                                            borderColor: `${getPerformanceColor(performance.overallPerformance)}80`
-                                        }}
-                                    >
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-                                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full -ml-12 -mb-12"></div>
+                                ) : (
+                                    <div className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-green-600 to-teal-600 rounded-2xl shadow-2xl p-6 border-2 border-emerald-400/50">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
+                                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full -ml-12 -mb-12"></div>
                                         <div className="relative">
-                                            <p className="text-white/90 text-sm font-medium mb-1">Overall Performance</p>
+                                            <p className="text-emerald-100 text-sm font-medium mb-1">Total Balance Collected</p>
                                             <p className="text-white font-bold text-4xl tracking-tight">
-                                                {performance.overallPerformance}%
-                                            </p>
-                                            <p className="text-white/80 text-xs mt-2">
-                                                {Object.keys(performance.taskCounts).length} of {tasksList.length} unique tasks completed
+                                                ${parseFloat(performance.totalCollectionAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </p>
                                         </div>
+                                    </div>
+                                )}
+
+                                {/* Card 2 - AR shows Collection Goal, Outbound shows Production Goal */}
+                                <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl shadow-2xl p-6 border-2 border-blue-400/50">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
+                                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full -ml-12 -mb-12"></div>
+                                    <div className="relative">
+                                        {performance.department === 'AR Department' ? (
+                                            <>
+                                                <p className="text-blue-100 text-sm font-medium mb-1">Collection Goal ({performance.numberOfDays} working {performance.numberOfDays === 1 ? 'day' : 'days'})</p>
+                                                <p className="text-white font-bold text-4xl tracking-tight">
+                                                    ${performance.collectionGoal ? performance.collectionGoal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                                                </p>
+                                            </>
+                                        ) : performance.department === 'Outbound Department' ? (
+                                            <>
+                                                <p className="text-blue-100 text-sm font-medium mb-1">Production Goal ({performance.numberOfDays} working {performance.numberOfDays === 1 ? 'day' : 'days'})</p>
+                                                <p className="text-white font-bold text-4xl tracking-tight">
+                                                    ${performance.productionGoal ? performance.productionGoal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                                                </p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p className="text-blue-100 text-sm font-medium mb-1">Department Goal</p>
+                                                <p className="text-white font-bold text-4xl tracking-tight">N/A</p>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
 
-                                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 border border-slate-700/50">
-                                    <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-700/50">
-                                        <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#blue-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <defs>
-                                                    <linearGradient id="blue-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                        <stop offset="0%" stopColor="#60A5FA" />
-                                                        <stop offset="100%" stopColor="#A78BFA" />
-                                                    </linearGradient>
-                                                </defs>
-                                                <path d="M9 11l3 3L22 4"/>
-                                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                                            </svg>
-                                            Tasks Completed
-                                        </h3>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm font-semibold text-slate-400 bg-slate-700/50 px-4 py-2 rounded-full">
-                                                {performance.totalTasks} Total Entries
-                                            </span>
-                                            {performance.unlistedTasks.length > 0 && (
-                                                <button
-                                                    onClick={() => setShowUnlistedTasks(!showUnlistedTasks)}
-                                                    className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-full transition-colors text-sm font-semibold"
-                                                >
-                                                    <span>Other Tasks</span>
-                                                    <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
-                                                        {performance.unlistedTasks.length}
-                                                    </span>
-                                                </button>
-                                            )}
-                                        </div>
+                                {/* Card 3 - Performance */}
+                                <div 
+                                    className="relative overflow-hidden rounded-2xl shadow-2xl p-6 border-2 transition-all duration-500"
+                                    style={{
+                                        backgroundColor: getPerformanceColor(performance.overallPerformance),
+                                        borderColor: `${getPerformanceColor(performance.overallPerformance)}80`
+                                    }}
+                                >
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full -ml-12 -mb-12"></div>
+                                    <div className="relative">
+                                        <p className="text-white/90 text-sm font-medium mb-1">Overall Performance</p>
+                                        <p className="text-white font-bold text-4xl tracking-tight">
+                                            {performance.overallPerformance}%
+                                        </p>
+                                        <p className="text-white/80 text-xs mt-2">
+                                            {Object.keys(performance.taskCounts).length} of {tasksList.length} unique tasks completed
+                                        </p>
                                     </div>
-                                    
-                                    <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-3">
-                                        {performance.taskCounts.map(([taskName, count]) => (
-                                            <div key={taskName} className="group relative bg-gradient-to-br from-slate-700/80 to-slate-800/80 backdrop-blur-sm rounded-xl p-3 hover:from-blue-600/20 hover:to-purple-600/20 transition-all duration-300 border border-slate-600/30 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10 cursor-pointer">
-                                                <div className="flex flex-col gap-2">
-                                                    <span className="text-gray-200 text-sm font-medium leading-tight line-clamp-2 group-hover:text-white transition-colors">{taskName}</span>
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-xs text-slate-400 group-hover:text-slate-300">Count</span>
-                                                        <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold px-2.5 py-1 rounded-lg text-sm shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all">{count}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {showUnlistedTasks && performance.unlistedTasks.length > 0 && (
-                                        <div className="mt-6 pt-6 border-t border-slate-700/50">
-                                            <h4 className="text-lg font-bold text-yellow-400 mb-4 flex items-center gap-2">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                    <circle cx="12" cy="12" r="10"/>
-                                                    <line x1="12" y1="16" x2="12" y2="12"/>
-                                                    <line x1="12" y1="8" x2="12.01" y2="8"/>
-                                                </svg>
-                                                Other Tasks (Not in Standard List)
-                                            </h4>
-                                            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-3">
-                                                {performance.unlistedTasks.map(([taskName, count]) => (
-                                                    <div key={taskName} className="group relative bg-gradient-to-br from-yellow-900/30 to-orange-900/30 backdrop-blur-sm rounded-xl p-3 hover:from-yellow-600/20 hover:to-orange-600/20 transition-all duration-300 border border-yellow-600/30 hover:border-yellow-500/50 hover:shadow-lg hover:shadow-yellow-500/10">
-                                                        <div className="flex flex-col gap-2">
-                                                            <span className="text-yellow-200 text-sm font-medium leading-tight line-clamp-2 group-hover:text-yellow-100 transition-colors">{taskName}</span>
-                                                            <div className="flex items-center justify-between">
-                                                                <span className="text-xs text-yellow-400/70 group-hover:text-yellow-300">Count</span>
-                                                                <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold px-2.5 py-1 rounded-lg text-sm shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all">{count}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {performance.taskCounts.length === 0 && (
-                                        <div className="text-center py-12 text-gray-400">
-                                            <AlertCircle />
-                                            <p className="mt-3 text-sm">No tasks found for the selected filters</p>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
-                        )}
-                    </div>
-                </div>
-            );
-        };
 
-        ReactDOM.render(<PerformanceTracker />, document.getElementById('root'));
-    </script>
+                            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 border border-slate-700/50">
+                                <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-700/50">
+                                    <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#blue-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <defs>
+                                                <linearGradient id="blue-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                    <stop offset="0%" stopColor="#60A5FA" />
+                                                    <stop offset="100%" stopColor="#A78BFA" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M9 11l3 3L22 4"/>
+                                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                                        </svg>
+                                        Tasks Completed
+                                    </h3>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm font-semibold text-slate-400 bg-slate-700/50 px-4 py-2 rounded-full">
+                                            {performance.totalTasks} Total Count
+                                        </span>
+                                        {performance.unlistedTasks.length > 0 && (
+                                            <button
+                                                onClick={() => setShowUnlistedTasks(!showUnlistedTasks)}
+                                                className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-full transition-colors text-sm font-semibold"
+                                            >
+                                                <span>Other Tasks</span>
+                                                <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                                                    {performance.unlistedTasks.length}
+                                                </span>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                    {performance.taskCounts.map(([taskName, count]) => (
+                                        <div key={taskName} className="group relative bg-gradient-to-br from-slate-700/80 to-slate-800/80 backdrop-blur-sm rounded-xl p-3 hover:from-blue-600/20 hover:to-purple-600/20 transition-all duration-300 border border-slate-600/30 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10 cursor-pointer">
+                                            <div className="flex flex-col gap-2">
+                                                <span className="text-gray-200 text-sm font-medium leading-tight line-clamp-2 group-hover:text-white transition-colors">{taskName}</span>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs text-slate-400 group-hover:text-slate-300">Count</span>
+                                                    <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold px-2.5 py-1 rounded-lg text-sm shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all">{Math.round(count)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {showUnlistedTasks && performance.unlistedTasks.length > 0 && (
+                                    <div className="mt-6 pt-6 border-t border-slate-700/50">
+                                        <h4 className="text-lg font-bold text-yellow-400 mb-4 flex items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <circle cx="12" cy="12" r="10"/>
+                                                <line x1="12" y1="16" x2="12" y2="12"/>
+                                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                            </svg>
+                                            Other Tasks (Not in Standard List)
+                                        </h4>
+                                        <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                            {performance.unlistedTasks.map(([taskName, count]) => (
+                                                <div key={taskName} className="group relative bg-gradient-to-br from-yellow-900/30 to-orange-900/30 backdrop-blur-sm rounded-xl p-3 hover:from-yellow-600/20 hover:to-orange-600/20 transition-all duration-300 border border-yellow-600/30 hover:border-yellow-500/50 hover:shadow-lg hover:shadow-yellow-500/10">
+                                                    <div className="flex flex-col gap-2">
+                                                        <span className="text-yellow-200 text-sm font-medium leading-tight line-clamp-2 group-hover:text-yellow-100 transition-colors">{taskName}</span>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-xs text-yellow-400/70 group-hover:text-yellow-300">Count</span>
+                                                            <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold px-2.5 py-1 rounded-lg text-sm shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all">{Math.round(count)}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {performance.taskCounts.length === 0 && (
+                                    <div className="text-center py-12 text-gray-400">
+                                        <AlertCircle />
+                                        <p className="mt-3 text-sm">No tasks found for the selected filters</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    ReactDOM.render(<PerformanceTracker />, document.getElementById('root'));
+</script>
 </body>
 </html>
-
-
+```
