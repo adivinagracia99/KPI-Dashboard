@@ -79,7 +79,7 @@
             const [showUnlistedTasks, setShowUnlistedTasks] = useState(false);
 
             const departments = {
-                'AR Department': ['AD', 'AB', 'BZ', 'GA', 'GG', 'HGB', 'IS', 'JA', 'JM', 'JS', 'KM', 'LG', 'MB', 'MGS', 'NB', 'PT', 'RM', 'SPA', 'MCB', 'MA', 'VR', 'RD', 'LSA'],
+                'AR Department': ['AD', 'AB','BDZ', 'BZ', 'GA', 'GG', 'HGB', 'IS', 'JA', 'JM', 'JS', 'KM', 'LG', 'MB', 'MGS', 'NB', 'PT', 'RM', 'SPA', 'MCB', 'MA', 'VR', 'RD', 'LSA'],
                 'Outbound Department': ['AMD', 'BM', 'CB', 'CC', 'CDC', 'DMA', 'ED', 'EMP', 'GC', 'GD', 'GP', 'HMA', 'IM', 'ISC', 'JC', 'JI', 'JL', 'JP', 'JRC', 'LL', 'LV', 'NZ', 'PB', 'RG', 'SMS', 'VL', 'WM'],
                 'Verification Department': ['CF', 'GZ', 'JCB', 'JTL', 'KR', 'MLC', 'RS']
             };
@@ -153,7 +153,7 @@ const normalizeEmployeeName = (rawName) => {
 
             const employeeStateAssignments = {
                 // AR Department
-                'AD': 'Alaska', 'AB': 'Alaska', 'BZ': 'California', 'GA': 'Washington', 
+                'AD': 'Alaska', 'AB': 'Alaska', 'BDZ': 'Washington', 'BZ': 'California', 'GA': 'Washington', 
                 'GG': 'Washington', 'HGB': 'Washington', 'IS': 'Washington', 'JA': 'Washington', 
                 'JM': 'Alaska', 'JS': 'California', 'KM': 'Washington', 'LG': 'Alaska', 
                 'MB': 'Washington', 'MGS': 'Washington', 'NB': 'California', 'PT': 'Alaska', 
@@ -1106,6 +1106,7 @@ return {
 </body>
 </html>
 ```
+
 
 
 
