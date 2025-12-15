@@ -89,6 +89,58 @@
                 ...departments['Outbound Department'],
                 ...departments['Verification Department']
             ];
+            // Employee name mapping - maps full names to initials
+const employeeNameMapping = {
+    'ADIVINAGRACIA': 'AD',
+    'ADIVINA': 'AD',
+    'ABARIOGA': 'AB',
+    'BZARATE': 'BZ',
+    'GAGBUYA': 'GA',
+    'ISECONG': 'IS',
+    'HBAGAPORO': 'HGB',
+    'JARREY': 'JA',
+    'RDELAPAZ': 'RD',
+    'KMAPAIT': 'KM',
+    'GGUJILDE': 'GG',
+    'JMORTIZ': 'JM',
+    'LGUARNES': 'LG',
+    'LSALAGANTIN': 'LSA',
+    'JSIMYUNN': 'JS',
+    'MAUGUSTO': 'MA',
+    'MBONGO': 'MB',
+    'MBACLAYON': 'MCB',
+    'MSAQUIAN': 'MGS',
+    'NBOLIVAR': 'NB',
+    'PTIPAN': 'PT',
+    'JMERCADO': 'RM',
+    'VRUZOL': 'VR',
+    'SADVINCULA': 'SPA'
+};
+
+// Normalize employee name to initials
+const normalizeEmployeeName = (rawName) => {
+    if (!rawName) return null;
+    
+    let name = rawName.trim().replace(/^["']|["']$/g, '');
+    
+    // Handle format "PT - PTIPAN" -> extract left side
+    if (name.includes(' - ')) {
+        name = name.split(' - ')[0].trim();
+    }
+    
+    // If it's already initials and in allowed list, return it
+    if (allAllowedNames.includes(name)) {
+        return name;
+    }
+    
+    // Try to map full name to initials
+    const upperName = name.toUpperCase();
+    if (employeeNameMapping[upperName]) {
+        return employeeNameMapping[upperName];
+    }
+    
+    return name;
+};
 
             const getDepartment = (name) => {
                 for (const [dept, names] of Object.entries(departments)) {
@@ -162,11 +214,23 @@
             };
 
             const SHEET_ID = '1asg-4czF_ITFPxvBpyRcjMLjhjl6XGRk0_FLsrQ4D6g';
-            const API_KEY = 'AIzaSyAeiFMlkhhDjEahdKksbS6HomSCbO9iQ50';
-            const SHEET_NAME = 'Data';
-            const SHEET_NAME_2 = 'Ins Pmt';
-            const RANGE = 'A:I';
-            const RANGE_INS_PMT = 'A:G';
+const SHEET_ID_2 = '1U0DAPmqFTSI343bls0sj732JsRb7a6E_QLwNLSqAklw';
+const API_KEY = 'AIzaSyAeiFMlkhhDjEahdKksbS6HomSCbO9iQ50';
+const SHEET_NAME = 'Data';
+const SHEET_NAME_INS_PMT = 'Ins Pmt';
+const RANGE = 'A:I';
+const RANGE_INS_PMT = 'A:G';
+const RANGE_COLLECTION = 'A:F';
+
+// All sheet names from the second spreadsheet
+const COLLECTION_SHEETS = [
+    'CA-CH', 'CA-WC', 'CA-OH', 'CA-TD', 'CA-SPD',
+    'WA-AR', 'WA-LW', 'WA-AL', 'WA-SS', 'WA-BD',
+    'WA-BR', 'WA-NP', 'WA-FW', 'WA-WD', 'WA-FD',
+    'WA-SM', 'WA-BL', 'WA-SP', 'WA-SH', 'WA-PY', 'WA-FF',
+    'WA-TM', 'WA-UP', 'WA-DP', 'WA-AD',
+    'AK'
+];
 
             const tasksList = [
                  'Aging- Closed Denied Claims',
@@ -284,98 +348,146 @@
                 taskLookup[original] = standard;
             });
 
-            const fetchDataFromSheet = async () => {
-                setLoading(true);
-                setError('');
-                
-                try {
-                    // Fetch Data sheet
-                    const url1 = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!${RANGE}?key=${API_KEY}`;
-                    const response1 = await fetch(url1);
-                    
-                    if (!response1.ok) {
-                        throw new Error(`Failed to fetch Data sheet: ${response1.statusText}`);
-                    }
-                    
-                    const result1 = await response1.json();
-                    const rows1 = result1.values || [];
-                    
-                    // Fetch Ins Pmt sheet
-                    const url2 = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME_2}!${RANGE_INS_PMT}?key=${API_KEY}`;
-                    const response2 = await fetch(url2);
-                    
-                    if (!response2.ok) {
-                        throw new Error(`Failed to fetch Ins Pmt sheet: ${response2.statusText}`);
-                    }
-                    
-                    const result2 = await response2.json();
-                    const rows2 = result2.values || [];
-                    
-                    if (rows1.length === 0 && rows2.length === 0) {
-                        throw new Error('No data found in either sheet');
-                    }
-
-                    // Parse Data sheet
-                    const parsedData = rows1.slice(1)
-                        .map(row => ({
-                            date: row[0] || '',
-                            task: row[3] || '',
-                            amount: row[4] || '',
-                            collectionAmount: row[5] || '',
-                            name: row[8] || '',
-                            office: row[2] || '',
-                            source: 'Data'
-                        }))
-                        .filter(row => {
-                            if (!row.name || !row.name.trim() || !row.task || !row.task.trim() || !row.date || !row.date.trim()) {
-                                return false;
-                            }
-                            let cleanName = row.name.trim().replace(/^["']|["']$/g, '');
-                            return allAllowedNames.includes(cleanName);
-                        });
-
-                    // Parse Ins Pmt sheet (column C=date, E=amount, G=name)
-                    const parsedInsPmt = rows2.slice(1)
-                        .map(row => ({
-                            date: row[2] || '', // Column C
-                            amount: row[4] || '', // Column E
-                            name: row[6] || '', // Column G
-                            source: 'InsPmt'
-                        }))
-                        .filter(row => {
-                            if (!row.name || !row.name.trim() || !row.date || !row.date.trim() || !row.amount || !row.amount.toString().trim()) {
-                                return false;
-                            }
-                            let cleanName = row.name.trim().replace(/^["']|["']$/g, '');
-                            return allAllowedNames.includes(cleanName);
-                        });
-
-                    console.log('Sample Data sheet rows:', parsedData.slice(0, 5));
-                    console.log('Sample Ins Pmt sheet rows:', parsedInsPmt.slice(0, 5));
-
-                    setData(parsedData);
-                    setInsPmtData(parsedInsPmt);
-                    
-                    // Get unique names from both sheets
-                    const allNames = [
-                        ...parsedData.map(row => row.name.trim().replace(/^["']|["']$/g, '')),
-                        ...parsedInsPmt.map(row => row.name.trim().replace(/^["']|["']$/g, ''))
-                    ];
-                    
-                    const names = [...new Set(allNames)]
-                        .filter(n => allAllowedNames.includes(n))
-                        .sort();
-                    
-                    setUniqueNames(names);
-                    setLastUpdated(new Date());
-                    
-                } catch (err) {
-                    console.error('Error fetching data:', err);
-                    setError(err.message);
-                } finally {
-                    setLoading(false);
+           const fetchDataFromSheet = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+        // Fetch Data sheet
+        const url1 = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!${RANGE}?key=${API_KEY}`;
+        const response1 = await fetch(url1);
+        
+        if (!response1.ok) {
+            throw new Error(`Failed to fetch Data sheet: ${response1.statusText}`);
+        }
+        
+        const result1 = await response1.json();
+        const rows1 = result1.values || [];
+        
+        // Fetch Ins Pmt sheet
+        const url2 = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME_INS_PMT}!${RANGE_INS_PMT}?key=${API_KEY}`;
+        const response2 = await fetch(url2);
+        
+        if (!response2.ok) {
+            throw new Error(`Failed to fetch Ins Pmt sheet: ${response2.statusText}`);
+        }
+        
+        const result2 = await response2.json();
+        const rows2 = result2.values || [];
+        
+        // Fetch all collection sheets from second spreadsheet
+        const collectionDataPromises = COLLECTION_SHEETS.map(async (sheetName) => {
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID_2}/values/${sheetName}!${RANGE_COLLECTION}?key=${API_KEY}`;
+                const response = await fetch(url);
+                if (response.ok) {
+                    const result = await response.json();
+                    return { sheetName, rows: result.values || [] };
                 }
-            };
+                return { sheetName, rows: [] };
+            } catch (err) {
+                console.warn(`Failed to fetch ${sheetName}:`, err);
+                return { sheetName, rows: [] };
+            }
+        });
+        
+        const collectionResults = await Promise.all(collectionDataPromises);
+        
+        if (rows1.length === 0 && rows2.length === 0 && collectionResults.every(r => r.rows.length === 0)) {
+            throw new Error('No data found in any sheet');
+        }
+
+        // Parse Data sheet
+        const parsedData = rows1.slice(1)
+            .map(row => ({
+                date: row[0] || '',
+                task: row[3] || '',
+                amount: row[4] || '',
+                collectionAmount: row[5] || '',
+                name: row[8] || '',
+                office: row[2] || '',
+                source: 'Data'
+            }))
+            .filter(row => {
+                if (!row.name || !row.name.trim() || !row.task || !row.task.trim() || !row.date || !row.date.trim()) {
+                    return false;
+                }
+                let cleanName = row.name.trim().replace(/^["']|["']$/g, '');
+                return allAllowedNames.includes(cleanName);
+            });
+
+        // Parse Ins Pmt sheet (column C=date, E=amount, G=name)
+        const parsedInsPmt = rows2.slice(1)
+            .map(row => ({
+                date: row[2] || '', // Column C
+                amount: row[4] || '', // Column E
+                name: row[6] || '', // Column G
+                source: 'InsPmt'
+            }))
+            .filter(row => {
+                if (!row.name || !row.name.trim() || !row.date || !row.date.trim() || !row.amount || !row.amount.toString().trim()) {
+                    return false;
+                }
+                let cleanName = row.name.trim().replace(/^["']|["']$/g, '');
+                return allAllowedNames.includes(cleanName);
+            });
+
+        // Parse collection data from all sheets (Column E=date, C=amount, F=name)
+        const parsedCollectionData = [];
+        collectionResults.forEach(({ sheetName, rows }) => {
+            if (rows.length > 1) {
+                rows.slice(1).forEach(row => {
+                    if (row.length >= 6) {
+                        const rawName = row[5] || ''; // Column F
+                        const cleanName = normalizeEmployeeName(rawName);
+                        
+                        const dateValue = row[4] || ''; // Column E
+                        const amountValue = row[2] || ''; // Column C
+                        
+                        if (cleanName && dateValue && amountValue && allAllowedNames.includes(cleanName)) {
+                            parsedCollectionData.push({
+                                date: dateValue,
+                                amount: amountValue,
+                                name: cleanName,
+                                source: `Collection-${sheetName}`
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        console.log('Sample Data sheet rows:', parsedData.slice(0, 5));
+        console.log('Sample Ins Pmt sheet rows:', parsedInsPmt.slice(0, 5));
+        console.log('Sample Collection sheet rows:', parsedCollectionData.slice(0, 5));
+        console.log('Total collection records:', parsedCollectionData.length);
+
+        setData(parsedData);
+        
+        // Combine Ins Pmt and Collection data
+        const combinedInsPmt = [...parsedInsPmt, ...parsedCollectionData];
+        setInsPmtData(combinedInsPmt);
+        
+        // Get unique names from all sources
+        const allNames = [
+            ...parsedData.map(row => row.name.trim().replace(/^["']|["']$/g, '')),
+            ...combinedInsPmt.map(row => row.name.trim().replace(/^["']|["']$/g, ''))
+        ];
+        
+        const names = [...new Set(allNames)]
+            .filter(n => allAllowedNames.includes(n))
+            .sort();
+        
+        setUniqueNames(names);
+        setLastUpdated(new Date());
+        
+    } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err.message);
+    } finally {
+        setLoading(false);
+    }
+};
 
             useEffect(() => {
                 fetchDataFromSheet();
@@ -386,21 +498,28 @@
                 return taskLookup[normalized] || null;
             };
 
-            const parseDate = (dateStr) => {
-                if (!dateStr) return null;
-                let date = new Date(dateStr);
-                if (isNaN(date.getTime())) {
-                    const parts = dateStr.split('/');
-                    if (parts.length === 3) {
-                        date = new Date(parts[2], parts[0] - 1, parts[1]);
-                    }
-                }
-                if (!isNaN(date.getTime())) {
-                    date.setHours(0, 0, 0, 0);
-                    return date;
-                }
-                return null;
-            };
+           const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    
+    // Handle dates with time (e.g., "12/15/2024 10:30:00")
+    let dateOnly = dateStr;
+    if (dateStr.includes(' ')) {
+        dateOnly = dateStr.split(' ')[0];
+    }
+    
+    let date = new Date(dateOnly);
+    if (isNaN(date.getTime())) {
+        const parts = dateOnly.split('/');
+        if (parts.length === 3) {
+            date = new Date(parts[2], parts[0] - 1, parts[1]);
+        }
+    }
+    if (!isNaN(date.getTime())) {
+        date.setHours(0, 0, 0, 0);
+        return date;
+    }
+    return null;
+};
 
             const shiftWeekendToWeekday = (date) => {
                 if (!date) return null;
@@ -664,7 +783,7 @@ if (userDepartment === 'Outbound Department') {
     console.log('=== AR DEPARTMENT PERFORMANCE CALCULATION ===');
     console.log('Employee:', selectedName, '| State:', userState);
     console.log('Working Days in range:', numberOfDays);
-    console.log('Total Collection: $' + totalCollectionAmount.toFixed(2));
+    console.log('Total Collection (from Data sheet + Ins Pmt + Collection sheets): $' + totalCollectionAmount.toFixed(2));
     console.log('Collection Goal: $' + collectionGoal.toFixed(2));
     console.log('Collection Performance:', collectionPerformance.toFixed(1) + '%');
     console.log('Overall:', overallPerformance.toFixed(1) + '%');
@@ -987,6 +1106,7 @@ return {
 </body>
 </html>
 ```
+
 
 
 
