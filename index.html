@@ -3,97 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KPI Dashboard - Task Tracker</title>
+    <title>KPI Dashboard - Enhanced</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgb(51, 65, 85); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgb(100, 116, 139); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgb(148, 163, 184); }
+    </style>
 </head>
 <body>
     <div id="root"></div>
-
     <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        // Icon Components
-        const Calculator = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="4" y="2" width="16" height="20" rx="2"/>
-                <line x1="8" y1="6" x2="16" y2="6"/>
-                <line x1="16" y1="14" x2="16" y2="14.01"/>
-                <line x1="12" y1="14" x2="12" y2="14.01"/>
-                <line x1="8" y1="14" x2="8" y2="14.01"/>
-                <line x1="16" y1="18" x2="16" y2="18.01"/>
-                <line x1="12" y1="18" x2="12" y2="18.01"/>
-                <line x1="8" y1="18" x2="8" y2="18.01"/>
-            </svg>
-        );
-
-        const Calendar = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-        );
-
-        const User = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-            </svg>
-        );
-
-        const RefreshCw = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 4 23 10 17 10"/>
-                <polyline points="1 20 1 14 7 14"/>
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-            </svg>
-        );
-
-        const DollarSign = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-        );
-
-        const Clipboard = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-            </svg>
-        );
-
-        const CheckCircle = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
-        );
-
-        const Clock = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-            </svg>
-        );
-
-        const TrendingUp = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                <polyline points="17 6 23 6 23 12"/>
-            </svg>
-        );
-
-        const TrendingDown = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
-                <polyline points="17 18 23 18 23 12"/>
-            </svg>
-        );
+        const { useState, useEffect, useRef } = React;
 
         // Configuration Data
         const departments = {
@@ -102,54 +28,43 @@
             'Verification Department': ['CF', 'GZ', 'JCB', 'JTL', 'KR', 'MLC', 'RS']
         };
 
-        const allAllowedNames = [
-            ...departments['AR Department'],
-            ...departments['Outbound Department'],
-            ...departments['Verification Department']
-        ];
+        const allAllowedNames = [...departments['AR Department'], ...departments['Outbound Department'], ...departments['Verification Department']];
 
         const employeeNameMapping = {
-            'ADIVINAGRACIA': 'AD', 'ADIVINA': 'AD', '**AD': 'AD',
-            'ABARIOGA': 'AB', '**AB': 'AB',
-            'BZARATE': 'BZ', '**BZ': 'BZ',
-            'GAGBUYA': 'GA', 'ISECONG': 'IS', 'HBAGAPORO': 'HGB',
-            'JARREY': 'JA', 'RDELAPAZ': 'RD', 'KMAPAIT': 'KPM',
-            'GGUJILDE': 'GG', 'JMORTIZ': 'JM', 'LGUARNES': 'LG',
-            'LSALAGANTIN': 'LSA', 'JSIMYUNN': 'JS', 'MAUGUSTO': 'MA',
-            'MBONGO': 'MB', 'MBACLAYON': 'MCB', 'MSAQUIAN': 'MGS',
-            'NBOLIVAR': 'NB', 'PTIPAN': 'PT', 'JMERCADO': 'RM',
-            'VRUZOL': 'VR', 'SADVINCULA': 'SPA',
-            '**GA': 'GA', '**IS': 'IS', '**HGB': 'HGB', '**JA': 'JA',
-            '**RD': 'RD', '**KPM': 'KPM', '**GG': 'GG', '**JM': 'JM',
-            '**LG': 'LG', '**LSA': 'LSA', '**JS': 'JS', '**MA': 'MA',
-            '**MB': 'MB', '**MCB': 'MCB', '**MGS': 'MGS', '**NB': 'NB',
-            '**PT': 'PT', '**RM': 'RM', '**VR': 'VR', '**SPA': 'SPA',
-            'CLIGASAN': 'JL', 'GCOLINARES': 'GC', 'CBONOSTRO': 'CB',
-            'DAULIDA': 'DMA', 'EMPANGILINAN': 'EMP', 'JCUNANAN': 'JC',
-            'BMANALO': 'BM', 'PBENITEZ': 'PB', 'nzambrano': 'NZ',
-            'vlagan': 'VL', 'istacruz': 'ISC', 'llagan': 'LL',
-            'edoronio': 'ED', 'lvillares': 'LV', 'ssalvejo': 'SMS',
-            'ccapispisan': 'CDC', 'jcadavez': 'JRC', 'adaumar': 'AMD',
-            'halfonso': 'HMA', 'jogario': 'JP', 'imorgado': 'IM',
-            'gpayoran': 'GP', 'wmejares': 'WM', 'rguaves': 'RG',
+            'ADIVINAGRACIA': 'AD', 'ADIVINA': 'AD', '**AD': 'AD', 'ABARIOGA': 'AB', '**AB': 'AB',
+            'BZARATE': 'BZ', '**BZ': 'BZ', 'GAGBUYA': 'GA', 'ISECONG': 'IS', 'HBAGAPORO': 'HGB',
+            'JARREY': 'JA', 'RDELAPAZ': 'RD', 'KMAPAIT': 'KPM', 'GGUJILDE': 'GG', 'JMORTIZ': 'JM',
+            'LGUARNES': 'LG', 'LSALAGANTIN': 'LSA', 'JSIMYUNN': 'JS', 'MAUGUSTO': 'MA',
+            'MBONGO': 'MB', 'MBACLAYON': 'MCB', 'MSAQUIAN': 'MGS', 'NBOLIVAR': 'NB',
+            'PTIPAN': 'PT', 'JMERCADO': 'RM', 'VRUZOL': 'VR', 'SADVINCULA': 'SPA',
+            '**GA': 'GA', '**IS': 'IS', '**HGB': 'HGB', '**JA': 'JA', '**RD': 'RD',
+            '**KPM': 'KPM', '**GG': 'GG', '**JM': 'JM', '**LG': 'LG', '**LSA': 'LSA',
+            '**JS': 'JS', '**MA': 'MA', '**MB': 'MB', '**MCB': 'MCB', '**MGS': 'MGS',
+            '**NB': 'NB', '**PT': 'PT', '**RM': 'RM', '**VR': 'VR', '**SPA': 'SPA',
+            'CLIGASAN': 'JL', 'GCOLINARES': 'GC', 'CBONOSTRO': 'CB', 'DAULIDA': 'DMA',
+            'EMPANGILINAN': 'EMP', 'JCUNANAN': 'JC', 'BMANALO': 'BM', 'PBENITEZ': 'PB',
+            'nzambrano': 'NZ', 'vlagan': 'VL', 'istacruz': 'ISC', 'llagan': 'LL',
+            'edoronio': 'ED', 'lvillares': 'LV', 'ssalvejo': 'SMS', 'ccapispisan': 'CDC',
+            'jcadavez': 'JRC', 'adaumar': 'AMD', 'halfonso': 'HMA', 'jogario': 'JP',
+            'imorgado': 'IM', 'gpayoran': 'GP', 'wmejares': 'WM', 'rguaves': 'RG',
             'ccapoy': 'CC', 'jincenzo': 'JI', 'gdelacruz': 'GD'
         };
 
         const employeeStateAssignments = {
-            'AD': 'Alaska', 'AB': 'Alaska', 'BDZ': 'Washington', 'BZ': 'California', 'GA': 'Washington', 
-            'GG': 'Washington', 'HGB': 'Washington', 'IS': 'Washington', 'JA': 'Washington', 
-            'JM': 'Alaska', 'JS': 'California', 'KPM': 'Washington', 'LG': 'Alaska', 
-            'MB': 'Washington', 'MGS': 'Washington', 'NB': 'California', 'PT': 'Alaska', 
-            'RM': 'Alaska', 'SPA': 'Washington', 'MCB': 'Washington', 'MA': 'Washington', 
+            'AD': 'Alaska', 'AB': 'Alaska', 'BDZ': 'Washington', 'BZ': 'California', 'GA': 'Washington',
+            'GG': 'Washington', 'HGB': 'Washington', 'IS': 'Washington', 'JA': 'Washington',
+            'JM': 'Alaska', 'JS': 'California', 'KPM': 'Washington', 'LG': 'Alaska',
+            'MB': 'Washington', 'MGS': 'Washington', 'NB': 'California', 'PT': 'Alaska',
+            'RM': 'Alaska', 'SPA': 'Washington', 'MCB': 'Washington', 'MA': 'Washington',
             'VR': 'Alaska', 'RD': 'Washington', 'LSA': 'Washington',
-            'AMD': 'Washington', 'BM': 'Alaska', 'CB': 'Alaska', 'CC': 'Washington', 
-            'CDC': 'Washington', 'DMA': 'Alaska', 'ED': 'Washington', 'EMP': 'Alaska', 
-            'GC': 'Alaska', 'GD': 'Washington', 'GP': 'Washington', 'HMA': 'Washington', 
-            'IM': 'Washington', 'ISC': 'Washington', 'JC': 'Alaska', 'JI': 'Washington', 
-            'JL': 'Alaska', 'JP': 'Washington', 'JRC': 'Washington', 'LL': 'Washington', 
-            'LV': 'Washington', 'NZ': 'Alaska', 'PB': 'Alaska', 'RG': 'Washington', 
+            'AMD': 'Washington', 'BM': 'Alaska', 'CB': 'Alaska', 'CC': 'Washington',
+            'CDC': 'Washington', 'DMA': 'Alaska', 'ED': 'Washington', 'EMP': 'Alaska',
+            'GC': 'Alaska', 'GD': 'Washington', 'GP': 'Washington', 'HMA': 'Washington',
+            'IM': 'Washington', 'ISC': 'Washington', 'JC': 'Alaska', 'JI': 'Washington',
+            'JL': 'Alaska', 'JP': 'Washington', 'JRC': 'Washington', 'LL': 'Washington',
+            'LV': 'Washington', 'NZ': 'Alaska', 'PB': 'Alaska', 'RG': 'Washington',
             'SMS': 'Washington', 'VL': 'Washington', 'WM': 'Washington',
-            'CF': 'Alaska', 'GZ': 'Alaska', 'JCB': 'Washington', 'JTL': 'Washington', 
+            'CF': 'Alaska', 'GZ': 'Alaska', 'JCB': 'Washington', 'JTL': 'Washington',
             'KR': 'Washington', 'MLC': 'Alaska', 'RS': 'Washington'
         };
 
@@ -206,13 +121,8 @@
         };
 
         const taskLookup = {};
-        tasksList.forEach(taskName => {
-            taskLookup[taskName.toLowerCase().trim()] = taskName;
-        });
-        
-        Object.entries(taskMapping).forEach(([original, standard]) => {
-            taskLookup[original] = standard;
-        });
+        tasksList.forEach(taskName => { taskLookup[taskName.toLowerCase().trim()] = taskName; });
+        Object.entries(taskMapping).forEach(([original, standard]) => { taskLookup[original] = standard; });
 
         const SHEET_ID = '1asg-4czF_ITFPxvBpyRcjMLjhjl6XGRk0_FLsrQ4D6g';
         const SHEET_ID_2 = '1U0DAPmqFTSI343bls0sj732JsRb7a6E_QLwNLSqAklw';
@@ -224,55 +134,38 @@
             'WA-AR', 'WA-LW', 'WA-AL', 'WA-SS', 'WA-BD',
             'WA-BR', 'WA-NP', 'WA-FW', 'WA-WD', 'WA-FD',
             'WA-SM', 'WA-BL', 'WA-SP', 'WA-SH', 'WA-PY', 'WA-FF',
-            'WA-TM', 'WA-UP', 'WA-DP', 'WA-AD', 'WA-WO-FD', 'WA-WO-BD',
-            'AK'
+            'WA-TM', 'WA-UP', 'WA-DP', 'WA-AD', 'WA-WO-FD', 'WA-WO-BD', 'AK'
         ];
 
         // Helper Functions
         const normalizeEmployeeName = (rawName) => {
             if (!rawName) return null;
             let name = rawName.trim().replace(/^["']|["']$/g, '');
-            if (name.includes(' - ')) {
-                name = name.split(' - ')[0].trim();
-            }
-            if (allAllowedNames.includes(name)) {
-                return name;
-            }
+            if (name.includes(' - ')) name = name.split(' - ')[0].trim();
+            if (allAllowedNames.includes(name)) return name;
             const upperName = name.toUpperCase();
             const lowerName = name.toLowerCase();
-            if (employeeNameMapping[upperName]) {
-                return employeeNameMapping[upperName];
-            }
-            if (employeeNameMapping[lowerName]) {
-                return employeeNameMapping[lowerName];
-            }
+            if (employeeNameMapping[upperName]) return employeeNameMapping[upperName];
+            if (employeeNameMapping[lowerName]) return employeeNameMapping[lowerName];
             return name;
         };
 
         const getDepartment = (name) => {
             for (const [dept, names] of Object.entries(departments)) {
-                if (names.includes(name)) {
-                    return dept;
-                }
+                if (names.includes(name)) return dept;
             }
             return 'Unknown';
         };
 
-        const getEmployeeState = (name) => {
-            return employeeStateAssignments[name] || 'Unknown';
-        };
+        const getEmployeeState = (name) => employeeStateAssignments[name] || 'Unknown';
 
         const getEmployeeGoal = (name, type) => {
             const state = getEmployeeState(name);
             const dept = getDepartment(name);
             if (state === 'Unknown' || !stateGoals[state]) return 0;
-            if (type === 'collection' && dept === 'AR Department') {
-                return stateGoals[state].collection;
-            } else if (type === 'production' && dept === 'Outbound Department') {
-                return stateGoals[state].production;
-            } else if (type === 'verification' && dept === 'Verification Department') {
-                return stateGoals[state].verification;
-            }
+            if (type === 'collection' && dept === 'AR Department') return stateGoals[state].collection;
+            else if (type === 'production' && dept === 'Outbound Department') return stateGoals[state].production;
+            else if (type === 'verification' && dept === 'Verification Department') return stateGoals[state].verification;
             return 0;
         };
 
@@ -284,15 +177,11 @@
         const parseDate = (dateStr) => {
             if (!dateStr) return null;
             let dateOnly = dateStr;
-            if (dateStr.includes(' ')) {
-                dateOnly = dateStr.split(' ')[0];
-            }
+            if (dateStr.includes(' ')) dateOnly = dateStr.split(' ')[0];
             let date = new Date(dateOnly);
             if (isNaN(date.getTime())) {
                 const parts = dateOnly.split('/');
-                if (parts.length === 3) {
-                    date = new Date(parts[2], parts[0] - 1, parts[1]);
-                }
+                if (parts.length === 3) date = new Date(parts[2], parts[0] - 1, parts[1]);
             }
             if (!isNaN(date.getTime())) {
                 date.setHours(0, 0, 0, 0);
@@ -305,11 +194,8 @@
             if (!date) return null;
             const dayOfWeek = date.getDay();
             const newDate = new Date(date);
-            if (dayOfWeek === 0) {
-                newDate.setDate(newDate.getDate() + 1);
-            } else if (dayOfWeek === 6) {
-                newDate.setDate(newDate.getDate() - 1);
-            }
+            if (dayOfWeek === 0) newDate.setDate(newDate.getDate() + 1);
+            else if (dayOfWeek === 6) newDate.setDate(newDate.getDate() - 1);
             return newDate;
         };
 
@@ -319,12 +205,83 @@
             let current = new Date(startDate);
             while (current <= endDate) {
                 const dayOfWeek = current.getDay();
-                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                    count++;
-                }
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) count++;
                 current.setDate(current.getDate() + 1);
             }
             return count;
+        };
+
+        const getPerformanceColor = (percentage) => {
+            if (percentage >= 90) return { bg: 'from-emerald-500 to-green-400', text: 'text-emerald-300', icon: 'bg-emerald-600/20', border: 'border-emerald-400' };
+            if (percentage >= 75) return { bg: 'from-lime-500 to-green-400', text: 'text-lime-300', icon: 'bg-lime-600/20', border: 'border-lime-400' };
+            if (percentage >= 60) return { bg: 'from-yellow-500 to-amber-400', text: 'text-yellow-300', icon: 'bg-yellow-600/20', border: 'border-yellow-400' };
+            if (percentage >= 40) return { bg: 'from-orange-500 to-yellow-400', text: 'text-orange-300', icon: 'bg-orange-600/20', border: 'border-orange-400' };
+            return { bg: 'from-red-500 to-orange-400', text: 'text-red-300', icon: 'bg-red-600/20', border: 'border-red-400' };
+        };
+                // Performance Chart Component
+        const PerformanceChart = ({ performanceData, dateRange }) => {
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+
+            useEffect(() => {
+                if (!chartRef.current || !performanceData || performanceData.length === 0) return;
+                if (chartInstance.current) chartInstance.current.destroy();
+
+                const ctx = chartRef.current.getContext('2d');
+                chartInstance.current = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: performanceData.map(d => d.label),
+                        datasets: [{
+                            label: 'Performance %',
+                            data: performanceData.map(d => d.value),
+                            borderColor: 'rgb(34, 211, 238)',
+                            backgroundColor: 'rgba(34, 211, 238, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgb(34, 211, 238)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#cbd5e1',
+                                borderColor: '#475569',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: false,
+                                callbacks: { label: (context) => `Performance: ${context.parsed.y.toFixed(1)}%` }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { color: '#94a3b8', callback: (value) => value + '%' },
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#94a3b8' },
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                            }
+                        }
+                    }
+                });
+
+                return () => { if (chartInstance.current) chartInstance.current.destroy(); };
+            }, [performanceData]);
+
+            return <div className="h-80"><canvas ref={chartRef}></canvas></div>;
         };
 
         // Main Component
@@ -339,29 +296,23 @@
             const [uniqueNames, setUniqueNames] = useState([]);
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState('');
-            const [lastUpdated, setLastUpdated] = useState(null);
 
-            // Fetch Data Function
             const fetchDataFromSheet = async () => {
                 setLoading(true);
                 setError('');
-                
                 try {
-                    // Fetch Data sheet
                     const url1 = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Data!A:I?key=${API_KEY}`;
                     const response1 = await fetch(url1);
                     if (!response1.ok) throw new Error(`Failed to fetch Data sheet: ${response1.statusText}`);
                     const result1 = await response1.json();
                     const rows1 = result1.values || [];
 
-                    // Fetch Ins Pmt sheet
                     const url2 = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Ins Pmt!A:G?key=${API_KEY}`;
                     const response2 = await fetch(url2);
                     if (!response2.ok) throw new Error(`Failed to fetch Ins Pmt sheet: ${response2.statusText}`);
                     const result2 = await response2.json();
                     const rows2 = result2.values || [];
 
-                    // Fetch collection sheets
                     const collectionDataPromises = COLLECTION_SHEETS.map(async (sheetName) => {
                         try {
                             const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID_2}/values/${sheetName}!A:F?key=${API_KEY}`;
@@ -378,7 +329,6 @@
                     });
                     const collectionResults = await Promise.all(collectionDataPromises);
 
-                    // Fetch production sheets
                     const productionDataPromises = COLLECTION_SHEETS.map(async (sheetName) => {
                         try {
                             const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID_3}/values/${sheetName}!A:C?key=${API_KEY}`;
@@ -395,7 +345,6 @@
                     });
                     const productionResults = await Promise.all(productionDataPromises);
 
-                    // Fetch appointment sheets
                     const appointmentDataPromises = COLLECTION_SHEETS.map(async (sheetName) => {
                         try {
                             const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID_3}/values/${sheetName}!A:D?key=${API_KEY}`;
@@ -412,42 +361,23 @@
                     });
                     const appointmentResults = await Promise.all(appointmentDataPromises);
 
-                    // Parse Data sheet
-                    const parsedData = rows1.slice(1)
-                        .map(row => ({
-                            date: row[0] || '',
-                            task: row[3] || '',
-                            amount: row[4] || '',
-                            collectionAmount: row[5] || '',
-                            name: row[8] || '',
-                            office: row[2] || '',
-                            source: 'Data'
-                        }))
-                        .filter(row => {
-                            if (!row.name || !row.name.trim() || !row.task || !row.task.trim() || !row.date || !row.date.trim()) {
-                                return false;
-                            }
-                            let cleanName = row.name.trim().replace(/^["']|["']$/g, '');
-                            return allAllowedNames.includes(cleanName);
-                        });
+                    const parsedData = rows1.slice(1).map(row => ({
+                        date: row[0] || '', task: row[3] || '', amount: row[4] || '',
+                        collectionAmount: row[5] || '', name: row[8] || '', office: row[2] || '', source: 'Data'
+                    })).filter(row => {
+                        if (!row.name || !row.name.trim() || !row.task || !row.task.trim() || !row.date || !row.date.trim()) return false;
+                        let cleanName = row.name.trim().replace(/^["']|["']$/g, '');
+                        return allAllowedNames.includes(cleanName);
+                    });
 
-                    // Parse Ins Pmt sheet
-                    const parsedInsPmt = rows2.slice(1)
-                        .map(row => ({
-                            date: row[2] || '',
-                            amount: row[4] || '',
-                            name: row[6] || '',
-                            source: 'InsPmt'
-                        }))
-                        .filter(row => {
-                            if (!row.name || !row.name.trim() || !row.date || !row.date.trim() || !row.amount || !row.amount.toString().trim()) {
-                                return false;
-                            }
-                            let cleanName = row.name.trim().replace(/^["']|["']$/g, '');
-                            return allAllowedNames.includes(cleanName);
-                        });
+                    const parsedInsPmt = rows2.slice(1).map(row => ({
+                        date: row[2] || '', amount: row[4] || '', name: row[6] || '', source: 'InsPmt'
+                    })).filter(row => {
+                        if (!row.name || !row.name.trim() || !row.date || !row.date.trim() || !row.amount || !row.amount.toString().trim()) return false;
+                        let cleanName = row.name.trim().replace(/^["']|["']$/g, '');
+                        return allAllowedNames.includes(cleanName);
+                    });
 
-                    // Parse collection data
                     const parsedCollectionData = [];
                     collectionResults.forEach(({ sheetName, rows }) => {
                         if (rows.length > 1) {
@@ -458,19 +388,13 @@
                                     const dateValue = row[4] || '';
                                     const amountValue = row[2] || '';
                                     if (cleanName && dateValue && amountValue && allAllowedNames.includes(cleanName)) {
-                                        parsedCollectionData.push({
-                                            date: dateValue,
-                                            amount: amountValue,
-                                            name: cleanName,
-                                            source: `Collection-${sheetName}`
-                                        });
+                                        parsedCollectionData.push({ date: dateValue, amount: amountValue, name: cleanName, source: `Collection-${sheetName}` });
                                     }
                                 }
                             });
                         }
                     });
 
-                    // Parse production data
                     const parsedProductionData = [];
                     productionResults.forEach(({ sheetName, rows }) => {
                         if (rows.length > 1) {
@@ -481,20 +405,13 @@
                                     const dateValue = row[0] || '';
                                     const amountValue = row[1] || '';
                                     if (cleanName && dateValue && amountValue && allAllowedNames.includes(cleanName)) {
-                                        parsedProductionData.push({
-                                            date: dateValue,
-                                            amount: amountValue,
-                                            name: cleanName,
-                                            office: sheetName,
-                                            source: `Production-${sheetName}`
-                                        });
+                                        parsedProductionData.push({ date: dateValue, amount: amountValue, name: cleanName, office: sheetName, source: `Production-${sheetName}` });
                                     }
                                 }
                             });
                         }
                     });
 
-                    // Parse appointment data
                     const parsedAppointmentData = [];
                     appointmentResults.forEach(({ sheetName, rows }) => {
                         if (rows.length > 1) {
@@ -507,13 +424,7 @@
                                     if (cleanName && dateValue && appointmentCount && allAllowedNames.includes(cleanName)) {
                                         const count = parseFloat(appointmentCount.toString().replace(/[^0-9.]/g, ''));
                                         if (!isNaN(count) && count > 0) {
-                                            parsedAppointmentData.push({
-                                                date: dateValue,
-                                                name: cleanName,
-                                                count: count,
-                                                office: sheetName,
-                                                source: `Appointment-${sheetName}`
-                                            });
+                                            parsedAppointmentData.push({ date: dateValue, name: cleanName, count: count, office: sheetName, source: `Appointment-${sheetName}` });
                                         }
                                     }
                                 }
@@ -527,20 +438,14 @@
                     setProductionData(parsedProductionData);
                     setAppointmentData(parsedAppointmentData);
 
-                    // Get unique names
                     const allNames = [
                         ...parsedData.map(row => row.name.trim().replace(/^["']|["']$/g, '')),
                         ...combinedInsPmt.map(row => row.name.trim().replace(/^["']|["']$/g, '')),
                         ...parsedProductionData.map(row => row.name.trim().replace(/^["']|["']$/g, '')),
                         ...parsedAppointmentData.map(row => row.name.trim().replace(/^["']|["']$/g, ''))
                     ];
-                    const names = [...new Set(allNames)]
-                        .filter(n => allAllowedNames.includes(n))
-                        .sort();
-                    
+                    const names = [...new Set(allNames)].filter(n => allAllowedNames.includes(n)).sort();
                     setUniqueNames(names);
-                    setLastUpdated(new Date());
-                    
                 } catch (err) {
                     console.error('Error fetching data:', err);
                     setError(err.message);
@@ -549,11 +454,8 @@
                 }
             };
 
-            useEffect(() => {
-                fetchDataFromSheet();
-            }, []);
-
-            // Calculate Performance Function - Part 1
+            useEffect(() => { fetchDataFromSheet(); }, []);
+                    // CALCULATION LOGIC - Part 1
             const calculatePerformance = () => {
                 if (!selectedName) return null;
 
@@ -567,7 +469,6 @@
                     return rowName === selectedName;
                 });
 
-                // Calculate number of working days
                 let numberOfDays = 1;
                 if (startDate && endDate) {
                     const start = new Date(startDate);
@@ -581,24 +482,19 @@
                         const rowDate = parseDate(row.date);
                         if (rowDate) {
                             const shiftedDate = shiftWeekendToWeekday(rowDate);
-                            if (shiftedDate) {
-                                uniqueDates.add(shiftedDate.toDateString());
-                            }
+                            if (shiftedDate) uniqueDates.add(shiftedDate.toDateString());
                         }
                     });
                     filteredInsPmt.forEach(row => {
                         const rowDate = parseDate(row.date);
                         if (rowDate) {
                             const shiftedDate = shiftWeekendToWeekday(rowDate);
-                            if (shiftedDate) {
-                                uniqueDates.add(shiftedDate.toDateString());
-                            }
+                            if (shiftedDate) uniqueDates.add(shiftedDate.toDateString());
                         }
                     });
                     numberOfDays = Math.max(1, uniqueDates.size);
                 }
 
-                // Apply date filters
                 if (startDate) {
                     const startDateObj = new Date(startDate);
                     startDateObj.setHours(0, 0, 0, 0);
@@ -637,13 +533,11 @@
                 const userDepartment = getDepartment(selectedName);
                 const userState = getEmployeeState(selectedName);
 
-                // Process Data sheet entries
                 filtered.forEach(row => {
                     const taskName = row.task.trim();
                     const taskLower = taskName.toLowerCase();
                     const standardTaskName = findTaskName(taskName);
                     
-                    // Count tasks based on column E (amount) value
                     if (row.amount && row.amount.toString().trim()) {
                         const amountValue = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
                         if (!isNaN(amountValue) && amountValue > 0) {
@@ -657,36 +551,26 @@
                         }
                     }
                     
-                    // Count appointments for Outbound Department
                     if (userDepartment === 'Outbound Department') {
                         if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') {
                             const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
-                            if (!isNaN(amountValue) && amountValue > 0) {
-                                totalAppointments += amountValue;
-                            }
+                            if (!isNaN(amountValue) && amountValue > 0) totalAppointments += amountValue;
                         }
-                        
                         if (standardTaskName === 'Inbound Call' || standardTaskName === 'Outbound Call') {
                             const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
-                            if (!isNaN(amountValue) && amountValue > 0) {
-                                totalCalls += amountValue;
-                            }
+                            if (!isNaN(amountValue) && amountValue > 0) totalCalls += amountValue;
                         }
                     }
                     
-                    // Collection amounts for AR Department
                     if (userDepartment === 'AR Department' && taskLower === 'total balance collected') {
                         if (row.collectionAmount && row.collectionAmount.toString().trim()) {
                             const cleanAmount = row.collectionAmount.toString().replace(/[$,\s]/g, '').trim();
                             const amount = parseFloat(cleanAmount);
-                            if (!isNaN(amount) && amount > 0) {
-                                totalCollectionAmount += amount;
-                            }
+                            if (!isNaN(amount) && amount > 0) totalCollectionAmount += amount;
                         }
                     }
                 });
 
-                // Process production data (Outbound Department only)
                 if (userDepartment === 'Outbound Department') {
                     let filteredProduction = productionData.filter(row => {
                         let rowName = row.name.trim().replace(/^["']|["']$/g, '');
@@ -701,7 +585,6 @@
                             return rowDate && rowDate >= startDateObj;
                         });
                     }
-                    
                     if (endDate) {
                         const endDateObj = new Date(endDate);
                         endDateObj.setHours(23, 59, 59, 999);
@@ -710,25 +593,18 @@
                             return rowDate && rowDate <= endDateObj;
                         });
                     }
-                    
                     filteredProduction.forEach(row => {
                         if (row.amount && row.amount.toString().trim()) {
                             const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
                             const amount = parseFloat(cleanAmount);
-                            if (!isNaN(amount) && amount > 0) {
-                                totalProductionAmount += amount;
-                            }
+                            if (!isNaN(amount) && amount > 0) totalProductionAmount += amount;
                         }
                     });
-                }
 
-                // Calculate completed appointments (Outbound Department only)
-                if (userDepartment === 'Outbound Department') {
                     let filteredAppointments = appointmentData.filter(row => {
                         let rowName = row.name.trim().replace(/^["']|["']$/g, '');
                         return rowName === selectedName;
                     });
-                    
                     if (startDate) {
                         const startDateObj = new Date(startDate);
                         startDateObj.setHours(0, 0, 0, 0);
@@ -737,7 +613,6 @@
                             return rowDate && rowDate >= startDateObj;
                         });
                     }
-                    
                     if (endDate) {
                         const endDateObj = new Date(endDate);
                         endDateObj.setHours(23, 59, 59, 999);
@@ -746,47 +621,34 @@
                             return rowDate && rowDate <= endDateObj;
                         });
                     }
-                    
                     totalCompletedAppointments = filteredAppointments.reduce((sum, row) => sum + (row.count || 0), 0);
                 }
 
-                // Process Ins Pmt sheet for collection amounts (AR Department only)
                 if (userDepartment === 'AR Department') {
                     filteredInsPmt.forEach(row => {
                         if (row.amount && row.amount.toString().trim()) {
                             const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
                             const amount = parseFloat(cleanAmount);
-                            if (!isNaN(amount) && amount > 0) {
-                                totalCollectionAmount += amount;
-                            }
+                            if (!isNaN(amount) && amount > 0) totalCollectionAmount += amount;
                         }
                     });
                 }
 
-                // Calculate state totals for percentage calculations
-                let stateCollectionTotal = 0;
-                let stateProductionTotal = 0;
-                let stateAppointmentTotal = 0;
-                let stateVerificationTotal = 0;
+                // Calculate state totals
+                let stateCollectionTotal = 0, stateProductionTotal = 0, stateAppointmentTotal = 0, stateVerificationTotal = 0;
                 const stateTaskTotals = {};
-
-                // Get all employees in the same state
                 const employeesInState = allAllowedNames.filter(name => getEmployeeState(name) === userState);
 
-                // Calculate state totals
                 employeesInState.forEach(empName => {
-                    // Filter data for this employee
                     let empFiltered = data.filter(row => {
                         let rowName = row.name.trim().replace(/^["']|["']$/g, '');
                         return rowName === empName;
                     });
-                    
                     let empFilteredInsPmt = insPmtData.filter(row => {
                         let rowName = row.name.trim().replace(/^["']|["']$/g, '');
                         return rowName === empName;
                     });
 
-                    // Apply date filters
                     if (startDate) {
                         const startDateObj = new Date(startDate);
                         startDateObj.setHours(0, 0, 0, 0);
@@ -799,7 +661,6 @@
                             return rowDate && rowDate >= startDateObj;
                         });
                     }
-                    
                     if (endDate) {
                         const endDateObj = new Date(endDate);
                         endDateObj.setHours(23, 59, 59, 999);
@@ -814,8 +675,6 @@
                     }
 
                     const empDept = getDepartment(empName);
-
-                    // AR Department - Collection
                     if (empDept === 'AR Department') {
                         empFiltered.forEach(row => {
                             const taskLower = row.task.trim().toLowerCase();
@@ -823,31 +682,24 @@
                                 if (row.collectionAmount && row.collectionAmount.toString().trim()) {
                                     const cleanAmount = row.collectionAmount.toString().replace(/[$,\s]/g, '').trim();
                                     const amount = parseFloat(cleanAmount);
-                                    if (!isNaN(amount) && amount > 0) {
-                                        stateCollectionTotal += amount;
-                                    }
+                                    if (!isNaN(amount) && amount > 0) stateCollectionTotal += amount;
                                 }
                             }
                         });
-
                         empFilteredInsPmt.forEach(row => {
                             if (row.amount && row.amount.toString().trim()) {
                                 const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
                                 const amount = parseFloat(cleanAmount);
-                                if (!isNaN(amount) && amount > 0) {
-                                    stateCollectionTotal += amount;
-                                }
+                                if (!isNaN(amount) && amount > 0) stateCollectionTotal += amount;
                             }
                         });
                     }
 
-                    // Outbound Department - Production and Appointments
                     if (empDept === 'Outbound Department') {
                         let empFilteredProduction = productionData.filter(row => {
                             let rowName = row.name.trim().replace(/^["']|["']$/g, '');
                             return rowName === empName;
                         });
-
                         if (startDate) {
                             const startDateObj = new Date(startDate);
                             startDateObj.setHours(0, 0, 0, 0);
@@ -856,7 +708,6 @@
                                 return rowDate && rowDate >= startDateObj;
                             });
                         }
-                        
                         if (endDate) {
                             const endDateObj = new Date(endDate);
                             endDateObj.setHours(23, 59, 59, 999);
@@ -865,23 +716,18 @@
                                 return rowDate && rowDate <= endDateObj;
                             });
                         }
-
                         empFilteredProduction.forEach(row => {
                             if (row.amount && row.amount.toString().trim()) {
                                 const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
                                 const amount = parseFloat(cleanAmount);
-                                if (!isNaN(amount) && amount > 0) {
-                                    stateProductionTotal += amount;
-                                }
+                                if (!isNaN(amount) && amount > 0) stateProductionTotal += amount;
                             }
                         });
 
-                        // Appointments
                         let empFilteredAppointments = appointmentData.filter(row => {
                             let rowName = row.name.trim().replace(/^["']|["']$/g, '');
                             return rowName === empName;
                         });
-
                         if (startDate) {
                             const startDateObj = new Date(startDate);
                             startDateObj.setHours(0, 0, 0, 0);
@@ -890,7 +736,6 @@
                                 return rowDate && rowDate >= startDateObj;
                             });
                         }
-                        
                         if (endDate) {
                             const endDateObj = new Date(endDate);
                             endDateObj.setHours(23, 59, 59, 999);
@@ -899,26 +744,21 @@
                                 return rowDate && rowDate <= endDateObj;
                             });
                         }
-
                         stateAppointmentTotal += empFilteredAppointments.reduce((sum, row) => sum + (row.count || 0), 0);
                     }
 
-                    // Verification Department
                     if (empDept === 'Verification Department') {
                         empFiltered.forEach(row => {
                             const standardTaskName = findTaskName(row.task.trim());
                             if (standardTaskName === 'Verification') {
                                 if (row.amount && row.amount.toString().trim()) {
                                     const amountValue = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
-                                    if (!isNaN(amountValue) && amountValue > 0) {
-                                        stateVerificationTotal += amountValue;
-                                    }
+                                    if (!isNaN(amountValue) && amountValue > 0) stateVerificationTotal += amountValue;
                                 }
                             }
                         });
                     }
 
-                    // Task totals for state
                     empFiltered.forEach(row => {
                         const standardTaskName = findTaskName(row.task.trim());
                         if (standardTaskName && row.amount && row.amount.toString().trim()) {
@@ -930,13 +770,11 @@
                     });
                 });
 
-                // Calculate percentages
                 const collectionPercentage = stateCollectionTotal > 0 ? (totalCollectionAmount / stateCollectionTotal) * 100 : 0;
                 const productionPercentage = stateProductionTotal > 0 ? (totalProductionAmount / stateProductionTotal) * 100 : 0;
                 const appointmentPercentage = stateAppointmentTotal > 0 ? (totalCompletedAppointments / stateAppointmentTotal) * 100 : 0;
                 const verificationPercentage = stateVerificationTotal > 0 ? ((taskCounts['Verification'] || 0) / stateVerificationTotal) * 100 : 0;
 
-                // Calculate task percentages
                 const taskPercentages = {};
                 Object.keys(taskCounts).forEach(taskName => {
                     const stateTotal = stateTaskTotals[taskName] || 0;
@@ -946,18 +784,14 @@
                 const sortedTasks = Object.entries(taskCounts).sort((a, b) => b[1] - a[1]);
                 const sortedUnlistedTasks = Object.entries(unlistedTasks).sort((a, b) => b[1] - a[1]);
 
-                // Calculate overall performance
                 let overallPerformance = 0;
-                
                 if (userDepartment === 'Outbound Department') {
                     const appointmentGoal = 20 * numberOfDays;
                     const callGoal = 100 * numberOfDays;
                     const productionGoal = getEmployeeGoal(selectedName, 'production') * numberOfDays;
-                    
                     const appointmentPerf = appointmentGoal > 0 ? (totalAppointments / appointmentGoal) * 100 : 0;
                     const callPerf = callGoal > 0 ? (totalCalls / callGoal) * 100 : 0;
                     const productionPerf = productionGoal > 0 ? (totalProductionAmount / productionGoal) * 100 : 0;
-                    
                     overallPerformance = Math.min(100, ((appointmentPerf + callPerf + productionPerf) / 3));
                 } else if (userDepartment === 'AR Department') {
                     const collectionGoal = getEmployeeGoal(selectedName, 'collection') * numberOfDays;
@@ -969,11 +803,236 @@
                     const verificationPerf = verificationGoal > 0 ? (verificationCount / verificationGoal) * 100 : 0;
                     overallPerformance = Math.min(100, verificationPerf);
                 }
+                        // PERFORMANCE CHART DATA CALCULATION
+                let performanceChartData = [];
+                let dateRangeType = 'daily';
+
+                if (startDate && endDate) {
+                    const start = new Date(startDate);
+                    const end = new Date(endDate);
+                    const daysDiff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+                    if (daysDiff <= 7) {
+                        dateRangeType = 'daily';
+                        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                            const dayData = filtered.filter(row => {
+                                const rowDate = parseDate(row.date);
+                                return rowDate && rowDate.toDateString() === d.toDateString();
+                            });
+
+                            let dayPerformance = 0;
+                            if (userDepartment === 'Outbound Department') {
+                                let dayAppointments = 0, dayCalls = 0, dayProduction = 0;
+                                dayData.forEach(row => {
+                                    const standardTaskName = findTaskName(row.task.trim());
+                                    const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
+                                    if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') dayAppointments += amountValue;
+                                    if (standardTaskName === 'Inbound Call' || standardTaskName === 'Outbound Call') dayCalls += amountValue;
+                                });
+                                const dayProductionData = productionData.filter(row => {
+                                    const rowName = row.name.trim().replace(/^["']|["']$/g, '');
+                                    const rowDate = parseDate(row.date);
+                                    return rowName === selectedName && rowDate && rowDate.toDateString() === d.toDateString();
+                                });
+                                dayProduction = dayProductionData.reduce((sum, row) => {
+                                    const amount = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                                    return sum + (isNaN(amount) ? 0 : amount);
+                                }, 0);
+                                const appointmentPerf = (dayAppointments / 20) * 100;
+                                const callPerf = (dayCalls / 100) * 100;
+                                const productionGoalDaily = getEmployeeGoal(selectedName, 'production');
+                                const productionPerf = productionGoalDaily > 0 ? (dayProduction / productionGoalDaily) * 100 : 0;
+                                dayPerformance = Math.min(100, ((appointmentPerf + callPerf + productionPerf) / 3));
+                            } else if (userDepartment === 'AR Department') {
+                                let dayCollection = 0;
+                                dayData.forEach(row => {
+                                    const taskLower = row.task.trim().toLowerCase();
+                                    if (taskLower === 'total balance collected' && row.collectionAmount && row.collectionAmount.toString().trim()) {
+                                        const amount = parseFloat(row.collectionAmount.toString().replace(/[$,\s]/g, '').trim());
+                                        if (!isNaN(amount) && amount > 0) dayCollection += amount;
+                                    }
+                                });
+                                const dayInsPmtData = filteredInsPmt.filter(row => {
+                                    const rowDate = parseDate(row.date);
+                                    return rowDate && rowDate.toDateString() === d.toDateString();
+                                });
+                                dayInsPmtData.forEach(row => {
+                                    const amount = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                                    if (!isNaN(amount) && amount > 0) dayCollection += amount;
+                                });
+                                const collectionGoalDaily = getEmployeeGoal(selectedName, 'collection');
+                                dayPerformance = collectionGoalDaily > 0 ? Math.min(100, (dayCollection / collectionGoalDaily) * 100) : 0;
+                            } else if (userDepartment === 'Verification Department') {
+                                let dayVerifications = 0;
+                                dayData.forEach(row => {
+                                    const standardTaskName = findTaskName(row.task.trim());
+                                    if (standardTaskName === 'Verification') {
+                                        const amountValue = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                                        if (!isNaN(amountValue) && amountValue > 0) dayVerifications += amountValue;
+                                    }
+                                });
+                                const verificationGoalDaily = getEmployeeGoal(selectedName, 'verification');
+                                dayPerformance = verificationGoalDaily > 0 ? Math.min(100, (dayVerifications / verificationGoalDaily) * 100) : 0;
+                            }
+                            performanceChartData.push({ label: `${d.getMonth() + 1}/${d.getDate()}`, value: dayPerformance });
+                        }
+                    } else if (daysDiff <= 30) {
+                        dateRangeType = 'weekly';
+                        const weeks = [];
+                        let weekStart = new Date(start);
+                        weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+                        while (weekStart <= end) {
+                            const weekEnd = new Date(weekStart);
+                            weekEnd.setDate(weekEnd.getDate() + 6);
+                            weeks.push({ start: new Date(weekStart), end: new Date(Math.min(weekEnd, end)) });
+                            weekStart.setDate(weekStart.getDate() + 7);
+                        }
+                        weeks.forEach((week, index) => {
+                            const weekData = filtered.filter(row => {
+                                const rowDate = parseDate(row.date);
+                                return rowDate && rowDate >= week.start && rowDate <= week.end;
+                            });
+                            const weekDays = countWorkingDays(week.start, week.end);
+                            let weekPerformance = 0;
+                            if (userDepartment === 'Outbound Department') {
+                                let weekAppointments = 0, weekCalls = 0, weekProduction = 0;
+                                weekData.forEach(row => {
+                                    const standardTaskName = findTaskName(row.task.trim());
+                                    const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
+                                    if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') weekAppointments += amountValue;
+                                    if (standardTaskName === 'Inbound Call' || standardTaskName === 'Outbound Call') weekCalls += amountValue;
+                                });
+                                const weekProductionData = productionData.filter(row => {
+                                    const rowName = row.name.trim().replace(/^["']|["']$/g, '');
+                                    const rowDate = parseDate(row.date);
+                                    return rowName === selectedName && rowDate && rowDate >= week.start && rowDate <= week.end;
+                                });
+                                weekProduction = weekProductionData.reduce((sum, row) => {
+                                    const amount = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                                    return sum + (isNaN(amount) ? 0 : amount);
+                                }, 0);
+                                const appointmentGoalWeek = 20 * weekDays;
+                                const callGoalWeek = 100 * weekDays;
+                                const productionGoalWeek = getEmployeeGoal(selectedName, 'production') * weekDays;
+                                const appointmentPerf = appointmentGoalWeek > 0 ? (weekAppointments / appointmentGoalWeek) * 100 : 0;
+                                const callPerf = callGoalWeek > 0 ? (weekCalls / callGoalWeek) * 100 : 0;
+                                const productionPerf = productionGoalWeek > 0 ? (weekProduction / productionGoalWeek) * 100 : 0;
+                                weekPerformance = Math.min(100, ((appointmentPerf + callPerf + productionPerf) / 3));
+                            } else if (userDepartment === 'AR Department') {
+                                let weekCollection = 0;
+                                weekData.forEach(row => {
+                                    const taskLower = row.task.trim().toLowerCase();
+                                    if (taskLower === 'total balance collected' && row.collectionAmount && row.collectionAmount.toString().trim()) {
+                                        const amount = parseFloat(row.collectionAmount.toString().replace(/[$,\s]/g, '').trim());
+                                        if (!isNaN(amount) && amount > 0) weekCollection += amount;
+                                    }
+                                });
+                                const weekInsPmtData = filteredInsPmt.filter(row => {
+                                    const rowDate = parseDate(row.date);
+                                    return rowDate && rowDate >= week.start && rowDate <= week.end;
+                                });
+                                weekInsPmtData.forEach(row => {
+                                    const amount = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                                    if (!isNaN(amount) && amount > 0) weekCollection += amount;
+                                });
+                                const collectionGoalWeek = getEmployeeGoal(selectedName, 'collection') * weekDays;
+                                weekPerformance = collectionGoalWeek > 0 ? Math.min(100, (weekCollection / collectionGoalWeek) * 100) : 0;
+                            } else if (userDepartment === 'Verification Department') {
+                                let weekVerifications = 0;
+                                weekData.forEach(row => {
+                                    const standardTaskName = findTaskName(row.task.trim());
+                                    if (standardTaskName === 'Verification') {
+                                        const amountValue = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                                        if (!isNaN(amountValue) && amountValue > 0) weekVerifications += amountValue;
+                                    }
+                                });
+                                const verificationGoalWeek = getEmployeeGoal(selectedName, 'verification') * weekDays;
+                                weekPerformance = verificationGoalWeek > 0 ? Math.min(100, (weekVerifications / verificationGoalWeek) * 100) : 0;
+                            }
+                            performanceChartData.push({ label: `Week ${index + 1}`, value: weekPerformance });
+                        });
+                    } else {
+                        dateRangeType = 'monthly';
+                        const months = [];
+                        let monthStart = new Date(start.getFullYear(), start.getMonth(), 1);
+                        while (monthStart <= end) {
+                            const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+                            months.push({
+                                start: new Date(Math.max(monthStart, start)),
+                                end: new Date(Math.min(monthEnd, end)),
+                                label: monthStart.toLocaleString('default', { month: 'short', year: 'numeric' })
+                            });
+                            monthStart.setMonth(monthStart.getMonth() + 1);
+                        }
+                        months.forEach((month) => {
+                            const monthData = filtered.filter(row => {
+                                const rowDate = parseDate(row.date);
+                                return rowDate && rowDate >= month.start && rowDate <= month.end;
+                            });
+                            const monthDays = countWorkingDays(month.start, month.end);
+                            let monthPerformance = 0;
+                            if (userDepartment === 'Outbound Department') {
+                                let monthAppointments = 0, monthCalls = 0, monthProduction = 0;
+                                monthData.forEach(row => {
+                                    const standardTaskName = findTaskName(row.task.trim());
+                                    const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
+                                    if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') monthAppointments += amountValue;
+                                    if (standardTaskName === 'Inbound Call' || standardTaskName === 'Outbound Call') monthCalls += amountValue;
+                                });
+                                const monthProductionData = productionData.filter(row => {
+                                    const rowName = row.name.trim().replace(/^["']|["']$/g, '');
+                                    const rowDate = parseDate(row.date);
+                                    return rowName === selectedName && rowDate && rowDate >= month.start && rowDate <= month.end;
+                                });
+                                monthProduction = monthProductionData.reduce((sum, row) => {
+                                    const amount = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                                    return sum + (isNaN(amount) ? 0 : amount);
+                                }, 0);
+                                const appointmentGoalMonth = 20 * monthDays;
+                                const callGoalMonth = 100 * monthDays;
+                                const productionGoalMonth = getEmployeeGoal(selectedName, 'production') * monthDays;
+                                const appointmentPerf = appointmentGoalMonth > 0 ? (monthAppointments / appointmentGoalMonth) * 100 : 0;
+                                const callPerf = callGoalMonth > 0 ? (monthCalls / callGoalMonth) * 100 : 0;
+                                const productionPerf = productionGoalMonth > 0 ? (monthProduction / productionGoalMonth) * 100 : 0;
+                                monthPerformance = Math.min(100, ((appointmentPerf + callPerf + productionPerf) / 3));
+                            } else if (userDepartment === 'AR Department') {
+                                let monthCollection = 0;
+                                monthData.forEach(row => {
+                                    const taskLower = row.task.trim().toLowerCase();
+                                    if (taskLower === 'total balance collected' && row.collectionAmount && row.collectionAmount.toString().trim()) {
+                                        const amount = parseFloat(row.collectionAmount.toString().replace(/[$,\s]/g, '').trim());
+                                        if (!isNaN(amount) && amount > 0) monthCollection += amount;
+                                    }
+                                });
+                                const monthInsPmtData = filteredInsPmt.filter(row => {
+                                    const rowDate = parseDate(row.date);
+                                    return rowDate && rowDate >= month.start && rowDate <= month.end;
+                                });
+                                monthInsPmtData.forEach(row => {
+                                    const amount = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                                    if (!isNaN(amount) && amount > 0) monthCollection += amount;
+                                });
+                                const collectionGoalMonth = getEmployeeGoal(selectedName, 'collection') * monthDays;
+                                monthPerformance = collectionGoalMonth > 0 ? Math.min(100, (monthCollection / collectionGoalMonth) * 100) : 0;
+                            } else if (userDepartment === 'Verification Department') {
+                                let monthVerifications = 0;
+                                monthData.forEach(row => {
+                                    const standardTaskName = findTaskName(row.task.trim());
+                                    if (standardTaskName === 'Verification') {
+                                        const amountValue = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                                        if (!isNaN(amountValue) && amountValue > 0) monthVerifications += amountValue;
+                                    }
+                                });
+                                const verificationGoalMonth = getEmployeeGoal(selectedName, 'verification') * monthDays;
+                                monthPerformance = verificationGoalMonth > 0 ? Math.min(100, (monthVerifications / verificationGoalMonth) * 100) : 0;
+                            }
+                            performanceChartData.push({ label: month.label, value: monthPerformance });
+                        });
+                    }
+                }
 
                 return {
-                    taskCounts: sortedTasks,
-                    unlistedTasks: sortedUnlistedTasks,
-                    taskPercentages,
+                    taskCounts: sortedTasks, unlistedTasks: sortedUnlistedTasks, taskPercentages,
                     totalCollectionAmount: totalCollectionAmount.toFixed(2),
                     totalProductionAmount: totalProductionAmount.toFixed(2),
                     collectionPercentage: collectionPercentage.toFixed(1),
@@ -981,268 +1040,236 @@
                     appointmentPercentage: appointmentPercentage.toFixed(1),
                     verificationPercentage: verificationPercentage.toFixed(1),
                     overallPerformance: Math.round(overallPerformance),
-                    totalTasks: Math.round(totalTasks),
-                    department: userDepartment,
-                    state: userState,
-                    totalAppointments: totalAppointments,
-                    totalCalls: totalCalls,
-                    totalCompletedAppointments: totalCompletedAppointments,
-                    numberOfDays: numberOfDays,
+                    totalTasks: Math.round(totalTasks), department: userDepartment, state: userState,
+                    totalAppointments, totalCalls, totalCompletedAppointments, numberOfDays,
                     appointmentGoal: userDepartment === 'Outbound Department' ? 20 * numberOfDays : null,
                     callGoal: userDepartment === 'Outbound Department' ? 100 * numberOfDays : null,
                     collectionGoal: userDepartment === 'AR Department' ? getEmployeeGoal(selectedName, 'collection') * numberOfDays : null,
                     productionGoal: userDepartment === 'Outbound Department' ? getEmployeeGoal(selectedName, 'production') * numberOfDays : null,
                     verificationCount: taskCounts['Verification'] || 0,
-                    verificationGoal: userDepartment === 'Verification Department' ? getEmployeeGoal(selectedName, 'verification') * numberOfDays : null
+                    verificationGoal: userDepartment === 'Verification Department' ? getEmployeeGoal(selectedName, 'verification') * numberOfDays : null,
+                    performanceChartData, dateRangeType
                 };
             };
 
             const performance = calculatePerformance();
-
-            // Render
+            const perfColor = performance ? getPerformanceColor(performance.overallPerformance) : null;
+                    // UI RENDERING
             return (
-                <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+                <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
                     <div className="max-w-7xl mx-auto">
-                        {/* Header */}
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-3">
-                                <div className="bg-blue-600 p-3 rounded-xl">
-                                    <Calculator />
+                                <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-3 rounded-xl shadow-lg shadow-cyan-500/50">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                        <rect x="4" y="2" width="16" height="20" rx="2"/>
+                                        <line x1="8" y1="6" x2="16" y2="6"/>
+                                    </svg>
                                 </div>
-                                <h1 className="text-3xl font-bold text-white">KPI Dashboard</h1>
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">KPI Dashboard</h1>
                             </div>
 
                             <div className="flex items-center gap-4">
-                                {/* Date Range */}
-                                <div className="flex items-center gap-2 bg-slate-800 px-4 py-2 rounded-xl border border-slate-700">
-                                    <Calendar />
-                                    <input
-                                        type="date"
-                                        value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
-                                        className="bg-transparent text-white text-sm focus:outline-none"
-                                    />
-                                    <span className="text-slate-400">-</span>
-                                    <input
-                                        type="date"
-                                        value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                        className="bg-transparent text-white text-sm focus:outline-none"
-                                    />
+                                <div className="flex items-center gap-2 bg-slate-800/80 backdrop-blur px-4 py-3 rounded-xl border border-slate-600 shadow-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                    </svg>
+                                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-transparent text-white text-sm focus:outline-none" />
+                                    <span className="text-slate-400 font-bold">-</span>
+                                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-transparent text-white text-sm focus:outline-none" />
                                 </div>
 
-                                {/* All Users Dropdown */}
-                                <div className="flex items-center gap-2 bg-slate-800 px-4 py-2 rounded-xl border border-slate-700">
-                                    <User />
-                                    <select
-                                        value={selectedName}
-                                        onChange={(e) => setSelectedName(e.target.value)}
-                                        className="bg-transparent text-white text-sm focus:outline-none cursor-pointer"
-                                    >
-                                        <option value="">All Users</option>
-                                        {uniqueNames.map(name => (
-                                            <option key={name} value={name}>{name}</option>
-                                        ))}
+                                <div className="relative">
+                                    <select value={selectedName} onChange={(e) => setSelectedName(e.target.value)} className="bg-slate-800 text-white border border-slate-600 rounded-xl px-4 py-3 pr-10 appearance-none cursor-pointer hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all shadow-lg font-medium" style={{minWidth: '160px'}}>
+                                        <option value="">Select User</option>
+                                        {uniqueNames.map(name => <option key={name} value={name}>{name}</option>)}
                                     </select>
+                                    <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
                                 </div>
 
-                                {/* Refresh Button */}
-                                <button
-                                    onClick={fetchDataFromSheet}
-                                    disabled={loading}
-                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-xl transition-colors"
-                                >
-                                    <RefreshCw />
-                                    <span className="text-sm font-semibold">{loading ? 'Refreshing...' : 'Refresh'}</span>
+                                <button onClick={fetchDataFromSheet} disabled={loading} className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:from-gray-600 disabled:to-gray-600 text-white rounded-xl transition-all shadow-lg shadow-cyan-500/30 font-semibold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                    </svg>
+                                    {loading ? 'Refreshing...' : 'Refresh'}
                                 </button>
                             </div>
                         </div>
 
-                        {error && (
-                            <div className="mb-6 p-4 bg-red-900/50 border border-red-700 rounded-xl text-red-200 text-sm">
-                                {error}
-                            </div>
-                        )}
+                        {error && <div className="mb-6 p-4 bg-red-900/50 border border-red-700 rounded-xl text-red-200 text-sm shadow-lg">{error}</div>}
 
                         {performance && selectedName && (
                             <div className="space-y-6">
-                                {/* KPI Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {/* Card 1 - Total Collection/Production/Verification */}
-                                    <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 relative overflow-hidden group hover:border-blue-500 transition-all">
-                                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform"></div>
-                                        <div className="relative">
+                                    <div className="bg-gradient-to-br from-slate-800 via-slate-800 to-cyan-900/20 rounded-2xl p-6 border border-cyan-500/30 hover:border-cyan-400 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-500"></div>
+                                        <div className="relative z-10">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <div className="bg-blue-600/20 p-2 rounded-lg">
-                                                    <DollarSign />
+                                                <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-2.5 rounded-lg shadow-lg shadow-cyan-500/50">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                                        <line x1="12" y1="1" x2="12" y2="23"/>
+                                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                                    </svg>
                                                 </div>
-                                                <h3 className="text-slate-400 text-sm font-medium">
-                                                    {performance.department === 'AR Department' ? 'Total Collection' :
-                                                     performance.department === 'Outbound Department' ? 'Total Production' :
-                                                     'Total Verifications'}
+                                                <h3 className="text-cyan-200 text-sm font-semibold">
+                                                    {performance.department === 'AR Department' ? 'Total Collection' : performance.department === 'Outbound Department' ? 'Total Production' : 'Total Verifications'}
                                                 </h3>
                                             </div>
                                             <p className="text-white text-3xl font-bold mb-2">
-                                                {performance.department === 'AR Department' ? `${parseFloat(performance.totalCollectionAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` :
-                                                 performance.department === 'Outbound Department' ? `${parseFloat(performance.totalProductionAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` :
-                                                 performance.verificationCount}
+                                                {performance.department === 'AR Department' ? `$${parseFloat(performance.totalCollectionAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : performance.department === 'Outbound Department' ? `$${parseFloat(performance.totalProductionAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : performance.verificationCount}
                                             </p>
                                             <div className="flex items-center gap-2">
-                                                <TrendingUp />
-                                                <span className="text-green-400 text-sm font-semibold">
-                                                    {performance.department === 'AR Department' ? `${performance.collectionPercentage}%` :
-                                                     performance.department === 'Outbound Department' ? `${performance.productionPercentage}%` :
-                                                     `${performance.verificationPercentage}%`} of state total
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                                    <polyline points="17 6 23 6 23 12"/>
+                                                </svg>
+                                                <span className="text-cyan-300 text-sm font-bold">
+                                                    {performance.department === 'AR Department' ? `${performance.collectionPercentage}%` : performance.department === 'Outbound Department' ? `${performance.productionPercentage}%` : `${performance.verificationPercentage}%`} of state
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Card 2 - Goal */}
-                                    <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 relative overflow-hidden group hover:border-purple-500 transition-all">
-                                        <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform"></div>
-                                        <div className="relative">
+                                    <div className="bg-gradient-to-br from-slate-800 via-slate-800 to-purple-900/20 rounded-2xl p-6 border border-purple-500/30 hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20 transition-all relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-500"></div>
+                                        <div className="relative z-10">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <div className="bg-purple-600/20 p-2 rounded-lg">
-                                                    <Clipboard />
+                                                <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-2.5 rounded-lg shadow-lg shadow-purple-500/50">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                                    </svg>
                                                 </div>
-                                                <h3 className="text-slate-400 text-sm font-medium">
-                                                    {performance.department === 'AR Department' ? 'Collection Goal' :
-                                                     performance.department === 'Outbound Department' ? 'Production Goal' :
-                                                     'Verification Goal'}
+                                                <h3 className="text-purple-200 text-sm font-semibold">
+                                                    {performance.department === 'AR Department' ? 'Collection Goal' : performance.department === 'Outbound Department' ? 'Production Goal' : 'Verification Goal'}
                                                 </h3>
                                             </div>
                                             <p className="text-white text-3xl font-bold mb-2">
-                                                {performance.department === 'AR Department' && performance.collectionGoal ? `${performance.collectionGoal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` :
-                                                 performance.department === 'Outbound Department' && performance.productionGoal ? `${performance.productionGoal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` :
-                                                 performance.verificationGoal || 0}
+                                                {performance.department === 'AR Department' && performance.collectionGoal ? `$${performance.collectionGoal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : performance.department === 'Outbound Department' && performance.productionGoal ? `$${performance.productionGoal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : performance.verificationGoal || 0}
                                             </p>
-                                            <p className="text-slate-400 text-sm">
-                                                {performance.numberOfDays} working {performance.numberOfDays === 1 ? 'day' : 'days'}
-                                            </p>
+                                            <p className="text-purple-300 text-sm font-medium">{performance.numberOfDays} working {performance.numberOfDays === 1 ? 'day' : 'days'}</p>
                                         </div>
                                     </div>
 
-                                    {/* Card 3 - Completed Appointments (Outbound only) */}
                                     {performance.department === 'Outbound Department' && (
-                                        <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 relative overflow-hidden group hover:border-yellow-500 transition-all">
-                                            <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-500/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform"></div>
-                                            <div className="relative">
+                                        <div className="bg-gradient-to-br from-slate-800 via-slate-800 to-amber-900/20 rounded-2xl p-6 border border-amber-500/30 hover:border-amber-400 hover:shadow-2xl hover:shadow-amber-500/20 transition-all relative overflow-hidden group">
+                                            <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-500"></div>
+                                            <div className="relative z-10">
                                                 <div className="flex items-center gap-3 mb-4">
-                                                    <div className="bg-yellow-600/20 p-2 rounded-lg">
-                                                        <CheckCircle />
+                                                    <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-2.5 rounded-lg shadow-lg shadow-amber-500/50">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                                            <polyline points="22 4 12 14.01 9 11.01"/>
+                                                        </svg>
                                                     </div>
-                                                    <h3 className="text-slate-400 text-sm font-medium">Completed Appointments</h3>
+                                                    <h3 className="text-amber-200 text-sm font-semibold">Completed Appts</h3>
                                                 </div>
-                                                <p className="text-white text-3xl font-bold mb-2">
-                                                    {performance.totalCompletedAppointments || 0}
-                                                </p>
+                                                <p className="text-white text-3xl font-bold mb-2">{performance.totalCompletedAppointments || 0}</p>
                                                 <div className="flex items-center gap-2">
-                                                    <TrendingUp />
-                                                    <span className="text-green-400 text-sm font-semibold">
-                                                        {performance.appointmentPercentage}% of state total
-                                                    </span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                                    </svg>
+                                                    <span className="text-amber-300 text-sm font-bold">{performance.appointmentPercentage}% of state</span>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
 
-                                    {/* Card 4 - Overall Performance */}
-                                    <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 relative overflow-hidden group hover:border-green-500 transition-all">
-                                        <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform"></div>
-                                        <div className="relative">
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <div className="bg-green-600/20 p-2 rounded-lg">
-                                                    <Clock />
-                                                </div>
-                                                <h3 className="text-slate-400 text-sm font-medium">Overall Performance</h3>
-                                            </div>
-                                            <p className="text-white text-3xl font-bold mb-2">
-                                                {performance.overallPerformance}%
-                                            </p>
-                                            <p className="text-slate-400 text-sm">
-                                                Based on department metrics
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Task Distribution Chart - Placeholder */}
-                                <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="bg-blue-600/20 p-2 rounded-lg">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <line x1="18" y1="20" x2="18" y2="10"/>
-                                                <line x1="12" y1="20" x2="12" y2="4"/>
-                                                <line x1="6" y1="20" x2="6" y2="14"/>
-                                            </svg>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-white">Task Distribution</h3>
-                                    </div>
-                                    <div className="text-center py-12 text-slate-400">
-                                        <p>Chart visualization coming soon</p>
-                                    </div>
-                                </div>
-
-                                {/* Top Tasks Section */}
-                                <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="bg-purple-600/20 p-2 rounded-lg">
-                                            <Clipboard />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-white">Top Tasks</h3>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        {performance.taskCounts.map(([taskName, count], index) => (
-                                            <div key={taskName} className="bg-slate-700/50 rounded-xl p-4 hover:bg-slate-700 transition-all">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex-1">
-                                                        <h4 className="text-white font-semibold mb-1">{taskName}</h4>
-                                                        <p className="text-slate-400 text-sm">{Math.round(count)} tasks</p>
+                                    {perfColor && (
+                                        <div className={`bg-gradient-to-br ${perfColor.bg} rounded-2xl p-6 border-2 ${perfColor.border} hover:shadow-2xl transition-all relative overflow-hidden group shadow-xl`}>
+                                            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-500"></div>
+                                            <div className="relative z-10">
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <div className="bg-white/20 p-2.5 rounded-lg backdrop-blur">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                                            <circle cx="12" cy="12" r="10"/>
+                                                            <polyline points="12 6 12 12 16 14"/>
+                                                        </svg>
                                                     </div>
-                                                    <div className="text-right">
-                                                        <p className="text-2xl font-bold text-white">
-                                                            ${(count * 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                                                        </p>
-                                                        <div className="flex items-center gap-1 justify-end mt-1">
-                                                            <span className="text-green-400 text-sm font-semibold">
-                                                                +{performance.taskPercentages[taskName]?.toFixed(1) || 0}% of state total
-                                                            </span>
+                                                    <h3 className="text-white text-sm font-semibold">Overall Performance</h3>
+                                                </div>
+                                                <p className="text-white text-5xl font-black mb-2 drop-shadow-lg">{performance.overallPerformance}%</p>
+                                                <p className="text-white/90 text-sm font-medium">Based on metrics</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="bg-gradient-to-br from-blue-500 to-cyan-600 p-2.5 rounded-lg shadow-lg shadow-blue-500/50">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                                    <line x1="18" y1="20" x2="18" y2="10"/>
+                                                    <line x1="12" y1="20" x2="12" y2="4"/>
+                                                    <line x1="6" y1="20" x2="6" y2="14"/>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl font-bold text-white">Performance Over Time</h3>
+                                                <p className="text-slate-400 text-sm">
+                                                    {performance.dateRangeType === 'daily' ? 'Daily Performance (≤7 days)' : performance.dateRangeType === 'weekly' ? 'Weekly Performance (≤30 days)' : 'Monthly Performance (>30 days)'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <PerformanceChart performanceData={performance.performanceChartData} dateRange={performance.dateRangeType} />
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-2.5 rounded-lg shadow-lg shadow-purple-500/50">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                                </svg>
+                                            </div>
+                                            <h3 className="text-xl font-bold text-white">Top Tasks</h3>
+                                        </div>
+                                        <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-2">
+                                            {performance.taskCounts.map(([taskName, count], index) => (
+                                                <div key={taskName} className="bg-slate-700/40 rounded-lg p-3 hover:bg-slate-700/60 transition-all border border-slate-600/50 hover:border-slate-500">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="flex-1 min-w-0">
+                                                            <h4 className="text-white font-medium text-sm truncate">{taskName}</h4>
+                                                            <div className="flex items-center gap-2 mt-1">
+                                                                <span className="text-slate-400 text-xs">{Math.round(count)} tasks</span>
+                                                                <span className="text-slate-600">•</span>
+                                                                <span className="text-cyan-400 text-xs font-semibold">{performance.taskPercentages[taskName]?.toFixed(1) || 0}% of state</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right shrink-0">
+                                                            <div className="bg-cyan-500/10 px-2 py-1 rounded text-cyan-300 text-xs font-bold">#{index + 1}</div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
 
-                                        {performance.unlistedTasks.length > 0 && (
-                                            <>
-                                                <div className="pt-4 pb-2">
-                                                    <h4 className="text-yellow-400 font-semibold text-sm">Other Tasks</h4>
-                                                </div>
-                                                {performance.unlistedTasks.map(([taskName, count]) => (
-                                                    <div key={taskName} className="bg-yellow-900/20 rounded-xl p-4 hover:bg-yellow-900/30 transition-all border border-yellow-700/30">
-                                                        <div className="flex items-center justify-between">
-                                                            <div className="flex-1">
-                                                                <h4 className="text-yellow-200 font-semibold mb-1">{taskName}</h4>
-                                                                <p className="text-yellow-400/70 text-sm">{Math.round(count)} tasks</p>
-                                                            </div>
-                                                            <div className="text-right">
-                                                                <p className="text-xl font-bold text-yellow-300">
-                                                                    ${(count * 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                                                                </p>
+                                            {performance.unlistedTasks.length > 0 && (
+                                                <>
+                                                    <div className="pt-3 pb-1">
+                                                        <h4 className="text-amber-400 font-semibold text-xs uppercase tracking-wide">Other Tasks</h4>
+                                                    </div>
+                                                    {performance.unlistedTasks.map(([taskName, count]) => (
+                                                        <div key={taskName} className="bg-amber-900/20 rounded-lg p-3 hover:bg-amber-900/30 transition-all border border-amber-700/30">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1 pr-4">
+                                                                    <h4 className="text-amber-200 font-medium text-sm">{taskName}</h4>
+                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                        <span className="text-amber-400/70 text-xs">{Math.round(count)} tasks</span>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                ))}
-                                            </>
-                                        )}
+                                                    ))}
+                                                </>
+                                            )}
 
-                                        {performance.taskCounts.length === 0 && performance.unlistedTasks.length === 0 && (
-                                            <div className="text-center py-8 text-slate-400">
-                                                <p>No tasks found for the selected filters</p>
-                                            </div>
-                                        )}
+                                            {performance.taskCounts.length === 0 && performance.unlistedTasks.length === 0 && (
+                                                <div className="text-center py-8 text-slate-400"><p className="text-sm">No tasks found</p></div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1250,9 +1277,14 @@
 
                         {!selectedName && (
                             <div className="text-center py-20">
-                                <div className="bg-slate-800 rounded-2xl p-12 border border-slate-700 inline-block">
-                                    <User />
-                                    <p className="text-slate-400 mt-4">Select an employee to view performance data</p>
+                                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-12 border border-slate-600 inline-block shadow-2xl">
+                                    <div className="bg-gradient-to-br from-blue-600/30 to-blue-500/20 p-4 rounded-full inline-block mb-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                            <circle cx="12" cy="7" r="4"/>
+                                        </svg>
+                                    </div>
+                                    <p className="text-slate-300 mt-4 text-lg">Select an employee to view performance data</p>
                                 </div>
                             </div>
                         )}
@@ -1265,3 +1297,4 @@
     </script>
 </body>
 </html>
+'''
