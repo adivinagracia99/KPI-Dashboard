@@ -139,16 +139,36 @@
 
         // Helper Functions
         const normalizeEmployeeName = (rawName) => {
-            if (!rawName) return null;
-            let name = rawName.trim().replace(/^["']|["']$/g, '');
-            if (name.includes(' - ')) name = name.split(' - ')[0].trim();
-            if (allAllowedNames.includes(name)) return name;
+              if (!rawName) return null;
+                let name = rawName.trim().replace(/^["']|["']$/g, '');
+                if (name.includes(' - ')) name = name.split(' - ')[0].trim();
+    
+        // First check if already in correct format
+                if (allAllowedNames.includes(name)) return name;
+    
+        // Check mapping with upper and lower case
             const upperName = name.toUpperCase();
             const lowerName = name.toLowerCase();
-            if (employeeNameMapping[upperName]) return employeeNameMapping[upperName];
-            if (employeeNameMapping[lowerName]) return employeeNameMapping[lowerName];
-            return name;
-        };
+                if (employeeNameMapping[upperName]) return employeeNameMapping[upperName];
+                if (employeeNameMapping[lowerName]) return employeeNameMapping[lowerName];
+    
+        // NEW: Extract initials from lowercase usernames (e.g., "jsimyunn" -> "JS")
+        // Check if it matches pattern: first letter + another letter (like jsimyunn, nbolivar, bzarate)
+            if (name.length >= 2 && /^[a-z]+$/.test(name)) {
+        // Try first 2 letters as initials
+            const possibleInitials = name.substring(0, 2).toUpperCase();
+                if (allAllowedNames.includes(possibleInitials)) {
+            return possibleInitials;
+        }
+        // Try first letter + first letter after first vowel
+        const match = name.match(/^([a-z])[aeiou]*([a-z])/i);
+        if (match) {
+            const initials = (match[1] + match[2]).toUpperCase();
+            if (allAllowedNames.includes(initials)) {
+                return initials;
+            }
+        }
+    }
 
         const getDepartment = (name) => {
             for (const [dept, names] of Object.entries(departments)) {
@@ -1303,4 +1323,5 @@
 </body>
 </html>
 '''
+
 
