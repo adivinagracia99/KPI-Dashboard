@@ -211,13 +211,13 @@
 
         const parseDate = (dateStr) => {
             if (!dateStr) return null;
-    
-             // Remove any time component - just get the date part
+
+            // Remove any time component - just get the date part
             let dateOnly = dateStr.toString().trim();
             if (dateOnly.includes(' ')) {
                 dateOnly = dateOnly.split(' ')[0];
             }
-    
+
             // Parse M/D/YYYY or MM/DD/YYYY format
             const parts = dateOnly.split('/');
             if (parts.length === 3) {
@@ -225,10 +225,11 @@
                 const day = parseInt(parts[1], 10);
                 const year = parseInt(parts[2], 10);
         
-             // Create date object - just use the date values, ignore everything else
-                return new Date(year, month, day);
+                // Create date object at noon to avoid timezone issues
+                // This ensures the date stays consistent regardless of timezone
+                return new Date(year, month, day, 12, 0, 0, 0);
             }
-            
+    
             return null;
         };
 
@@ -544,7 +545,7 @@
 
                 if (startDate) {
                     const startDateObj = new Date(startDate);
-                    startDateObj.setHours(0, 0, 0, 0);
+                    startDateObj.setHours(12, 0, 0, 0);
                     filtered = filtered.filter(row => {
                         const rowDate = parseDate(row.date);
                         return rowDate && rowDate >= startDateObj;
@@ -557,7 +558,7 @@
                 
                 if (endDate) {
                     const endDateObj = new Date(endDate);
-                    endDateObj.setHours(23, 59, 59, 999);
+                    endDateObj.setHours(12, 0, 0, 0);
                     filtered = filtered.filter(row => {
                         const rowDate = parseDate(row.date);
                         return rowDate && rowDate <= endDateObj;
@@ -626,7 +627,7 @@
                     
                     if (startDate) {
                         const startDateObj = new Date(startDate);
-                        startDateObj.setHours(0, 0, 0, 0);
+                        startDateObj.setHours(12, 0, 0, 0);
                         filteredProduction = filteredProduction.filter(row => {
                             const rowDate = parseDate(row.date);
                             return rowDate && rowDate >= startDateObj;
@@ -634,7 +635,7 @@
                     }
                     if (endDate) {
                         const endDateObj = new Date(endDate);
-                        endDateObj.setHours(23, 59, 59, 999);
+                        endDateObj.setHours(12, 0, 0, 0);
                         filteredProduction = filteredProduction.filter(row => {
                             const rowDate = parseDate(row.date);
                             return rowDate && rowDate <= endDateObj;
@@ -654,7 +655,7 @@
                     });
                     if (startDate) {
                         const startDateObj = new Date(startDate);
-                        startDateObj.setHours(0, 0, 0, 0);
+                        startDateObj.setHours(12, 0, 0, 0);
                         filteredAppointments = filteredAppointments.filter(row => {
                             const rowDate = parseDate(row.date);
                             return rowDate && rowDate >= startDateObj;
@@ -662,7 +663,7 @@
                     }
                     if (endDate) {
                         const endDateObj = new Date(endDate);
-                        endDateObj.setHours(23, 59, 59, 999);
+                        endDateObj.setHours(12, 0, 0, 0);
                         filteredAppointments = filteredAppointments.filter(row => {
                             const rowDate = parseDate(row.date);
                             return rowDate && rowDate <= endDateObj;
@@ -730,7 +731,7 @@
 
                     if (startDate) {
                         const startDateObj = new Date(startDate);
-                        startDateObj.setHours(0, 0, 0, 0);
+                        startDateObj.setHours(12, 0, 0, 0);
                         empFiltered = empFiltered.filter(row => {
                             const rowDate = parseDate(row.date);
                             return rowDate && rowDate >= startDateObj;
@@ -742,7 +743,7 @@
                     }
                     if (endDate) {
                         const endDateObj = new Date(endDate);
-                        endDateObj.setHours(23, 59, 59, 999);
+                        endDateObj.setHours(12, 0, 0, 0);
                         empFiltered = empFiltered.filter(row => {
                             const rowDate = parseDate(row.date);
                             return rowDate && rowDate <= endDateObj;
@@ -781,7 +782,7 @@
                         });
                         if (startDate) {
                             const startDateObj = new Date(startDate);
-                            startDateObj.setHours(0, 0, 0, 0);
+                            startDateObj.setHours(12, 0, 0, 0);
                             empFilteredProduction = empFilteredProduction.filter(row => {
                                 const rowDate = parseDate(row.date);
                                 return rowDate && rowDate >= startDateObj;
@@ -789,7 +790,7 @@
                         }
                         if (endDate) {
                             const endDateObj = new Date(endDate);
-                            endDateObj.setHours(23, 59, 59, 999);
+                            endDateObj.setHours(12, 0, 0, 0);
                             empFilteredProduction = empFilteredProduction.filter(row => {
                                 const rowDate = parseDate(row.date);
                                 return rowDate && rowDate <= endDateObj;
@@ -809,7 +810,7 @@
                         });
                         if (startDate) {
                             const startDateObj = new Date(startDate);
-                            startDateObj.setHours(0, 0, 0, 0);
+                            startDateObj.setHours(12, 0, 0, 0);
                             empFilteredAppointments = empFilteredAppointments.filter(row => {
                                 const rowDate = parseDate(row.date);
                                 return rowDate && rowDate >= startDateObj;
@@ -817,7 +818,7 @@
                         }
                         if (endDate) {
                             const endDateObj = new Date(endDate);
-                            endDateObj.setHours(23, 59, 59, 999);
+                            endDateObj.setHours(12, 0, 0, 0);
                             empFilteredAppointments = empFilteredAppointments.filter(row => {
                                 const rowDate = parseDate(row.date);
                                 return rowDate && rowDate <= endDateObj;
@@ -1377,6 +1378,7 @@
 </body>
 </html>
 '''
+
 
 
 
