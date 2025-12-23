@@ -74,6 +74,14 @@
             'California': { collection: 4545, production: 95000, verification: 50 }
         };
 
+        const mixedVerificationEmployees = {
+            'CF': {
+            verificationM: { goal: 45, weight: 0.80 },  // 80% weight, 45 per day
+            verificationP: { goal: 7, weight: 0.20 }    // 20% weight, 7 per day
+            }
+         }
+        };
+
         const tasksList = [
             'Aging- Closed Denied Claims', 'Aging- Closed Paid Claims', 'Aging- Resubmit Claims',
             'Aging- Review Claims', 'Aging- Voided Claims', 'Allocation Correction Log',
@@ -201,7 +209,16 @@
             if (state === 'Unknown' || !stateGoals[state]) return 0;
             if (type === 'collection' && dept === 'AR Department') return stateGoals[state].collection;
             else if (type === 'production' && dept === 'Outbound Department') return stateGoals[state].production;
-            else if (type === 'verification' && dept === 'Verification Department') return stateGoals[state].verification;
+            else if (type === 'verification' && dept === 'Verification Department') {
+        // Check if this employee has mixed verification goals
+                if (mixedVerificationEmployees[name]) {
+            // Return combined weighted goal
+                    const config = mixedVerificationEmployees[name];
+                    return (config.verificationM.goal * config.verificationM.weight) + 
+                           (config.verificationP.goal * config.verificationP.weight);
+                }
+                return stateGoals[state].verification;
+            }
             return 0;
         };
 
@@ -885,16 +902,17 @@
                     }
 
                     if (empDept === 'Verification Department') {
-                        empFiltered.forEach(row => {
-                            const standardTaskName = findTaskName(row.task.trim());
-                            if (standardTaskName === 'Verification') {
-                                if (row.amount && row.amount.toString().trim()) {
-                                    const amountValue = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
-                                    if (!isNaN(amountValue) && amountValue > 0) stateVerificationTotal += amountValue;
-                                }
-                            }
-                        });
-                    }
+                       empFiltered.forEach(row => {
+                    const standardTaskName = findTaskName(row.task.trim());
+                    // Count both Verification, Verification (M), and Verification (P)
+                      if (standardTaskName === 'Verification' || standardTaskName === 'Verification (M)' || standardTaskName === 'Verification (P)') {
+                           if (row.amount && row.amount.toString().trim()) {
+                              const amountValue = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                             if (!isNaN(amountValue) && amountValue > 0) stateVerificationTotal += amountValue;
+                           }
+                           }
+                  });
+                  }
 
                     empFiltered.forEach(row => {
                         const standardTaskName = findTaskName(row.task.trim());
@@ -910,7 +928,10 @@
                 const collectionPercentage = stateCollectionTotal > 0 ? (totalCollectionAmount / stateCollectionTotal) * 100 : 0;
                 const productionPercentage = stateProductionTotal > 0 ? (totalProductionAmount / stateProductionTotal) * 100 : 0;
                 const appointmentPercentage = stateAppointmentTotal > 0 ? (totalCompletedAppointments / stateAppointmentTotal) * 100 : 0;
-                const verificationPercentage = stateVerificationTotal > 0 ? ((taskCounts['Verification'] || 0) / stateVerificationTotal) * 100 : 0;
+                const userVerificationCount = (taskCounts['Verification'] || 0) + 
+                              (taskCounts['Verification (M)'] || 0) + 
+                              (taskCounts['Verification (P)'] || 0);
+                const verificationPercentage = stateVerificationTotal > 0 ? (userVerificationCount / stateVerificationTotal) * 100 : 0;
 
                 const taskPercentages = {};
                 Object.keys(taskCounts).forEach(taskName => {
@@ -935,11 +956,31 @@
                     const collectionPerf = collectionGoal > 0 ? (totalCollectionAmount / collectionGoal) * 100 : 0;
                     overallPerformance = Math.min(100, collectionPerf);
                 } else if (userDepartment === 'Verification Department') {
-                    const verificationGoal = getEmployeeGoal(selectedName, 'verification') * numberOfDays;
-                    const verificationCount = taskCounts['Verification'] || 0;
-                    const verificationPerf = verificationGoal > 0 ? (verificationCount / verificationGoal) * 100 : 0;
-                    overallPerformance = Math.min(100, verificationPerf);
-                }
+        // Check if employee has mixed verification goals
+        if (mixedVerificationEmployees[selectedName]) {
+            const config = mixedVerificationEmployees[selectedName];
+            const verificationMCount = taskCounts['Verification (M)'] || 0;
+            const verificationPCount = taskCounts['Verification (P)'] || 0;
+        
+            const verificationMGoal = config.verificationM.goal * numberOfDays;
+            const verificationPGoal = config.verificationP.goal * numberOfDays;
+        
+            const verificationMPerf = verificationMGoal > 0 ? (verificationMCount / verificationMGoal) * 100 : 0;
+            const verificationPPerf = verificationPGoal > 0 ? (verificationPCount / verificationPGoal) * 100 : 0;
+        
+            // Weighted performance calculation
+            overallPerformance = Math.min(100, 
+                (verificationMPerf * config.verificationM.weight) + 
+                (verificationPPerf * config.verificationP.weight)
+            );
+        } else {
+            // Standard verification performance
+            const verificationGoal = getEmployeeGoal(selectedName, 'verification') * numberOfDays;
+            const verificationCount = taskCounts['Verification'] || 0;
+            const verificationPerf = verificationGoal > 0 ? (verificationCount / verificationGoal) * 100 : 0;
+            overallPerformance = Math.min(100, verificationPerf);
+        }
+    }
             // PERFORMANCE CHART DATA CALCULATION
                 let performanceChartData = [];
                 let dateRangeType = 'daily';
@@ -1183,7 +1224,9 @@
                     callGoal: userDepartment === 'Outbound Department' ? 100 * numberOfDays : null,
                     collectionGoal: userDepartment === 'AR Department' ? getEmployeeGoal(selectedName, 'collection') * numberOfDays : null,
                     productionGoal: userDepartment === 'Outbound Department' ? getEmployeeGoal(selectedName, 'production') * numberOfDays : null,
-                    verificationCount: taskCounts['Verification'] || 0,
+                    verificationCount: (taskCounts['Verification'] || 0) + 
+                       (taskCounts['Verification (M)'] || 0) + 
+                       (taskCounts['Verification (P)'] || 0),
                     verificationGoal: userDepartment === 'Verification Department' ? getEmployeeGoal(selectedName, 'verification') * numberOfDays : null,
                     performanceChartData, dateRangeType
                 };
@@ -1435,3 +1478,4 @@
     </script>
 </body>
 </html>
+
