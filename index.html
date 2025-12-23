@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -139,52 +139,53 @@
 
         // Helper Functions
         const normalizeEmployeeName = (rawName) => {
-    if (!rawName) return null;
-    let name = rawName.trim().replace(/^["']|["']$/g, '');
-    
-    // Remove numeric prefixes like "12.0 ADIVINA" -> "ADIVINA"
-    name = name.replace(/^\d+\.?\d*\s+/, '');
-    
-    // Handle " - " separator
-    if (name.includes(' - ')) name = name.split(' - ')[0].trim();
-    
-    // Remove trailing " R" or " P" status indicators
-    name = name.replace(/\s+[RP]$/i, '');
-    
-    // First check if already in correct format (case-sensitive check for initials)
-    if (allAllowedNames.includes(name)) return name;
-    
-    // Convert to uppercase for case-insensitive matching
-    const upperName = name.toUpperCase();
-    
-    // Check if uppercase version is in allowed names
-    if (allAllowedNames.includes(upperName)) return upperName;
-    
-    // Check mapping (now case-insensitive)
-    if (employeeNameMapping[upperName]) return employeeNameMapping[upperName];
-    
-    // Try removing spaces and checking again (for "ADIVINA GRACI" -> "ADIVINAGRACI")
-    const noSpaces = upperName.replace(/\s+/g, '');
-    if (employeeNameMapping[noSpaces]) return employeeNameMapping[noSpaces];
-    if (allAllowedNames.includes(noSpaces)) return noSpaces;
-    
-    // Extract initials from lowercase usernames (like "jsimyunn" -> "JS")
-    if (name.length >= 2 && /^[a-z]+$/.test(name)) {
-        const possibleInitials = name.substring(0, 2).toUpperCase();
-        if (allAllowedNames.includes(possibleInitials)) {
-            return possibleInitials;
-        }
-        const match = name.match(/^([a-z])[aeiou]*([a-z])/i);
-        if (match) {
-            const initials = (match[1] + match[2]).toUpperCase();
-            if (allAllowedNames.includes(initials)) {
-                return initials;
+            if (!rawName) return null;
+            let name = rawName.trim().replace(/^["']|["']$/g, '');
+            
+            // Remove numeric prefixes like "12.0 ADIVINA" -> "ADIVINA"
+            name = name.replace(/^\d+\.?\d*\s+/, '');
+            
+            // Handle " - " separator
+            if (name.includes(' - ')) name = name.split(' - ')[0].trim();
+            
+            // Remove trailing " R" or " P" status indicators
+            name = name.replace(/\s+[RP]$/i, '');
+            
+            // First check if already in correct format (case-sensitive check for initials)
+            if (allAllowedNames.includes(name)) return name;
+            
+            // Convert to uppercase for case-insensitive matching
+            const upperName = name.toUpperCase();
+            
+            // Check if uppercase version is in allowed names
+            if (allAllowedNames.includes(upperName)) return upperName;
+            
+            // Check mapping (now case-insensitive)
+            if (employeeNameMapping[upperName]) return employeeNameMapping[upperName];
+            
+            // Try removing spaces and checking again (for "ADIVINA GRACI" -> "ADIVINAGRACI")
+            const noSpaces = upperName.replace(/\s+/g, '');
+            if (employeeNameMapping[noSpaces]) return employeeNameMapping[noSpaces];
+            if (allAllowedNames.includes(noSpaces)) return noSpaces;
+            
+            // Extract initials from lowercase usernames (like "jsimyunn" -> "JS")
+            if (name.length >= 2 && /^[a-z]+$/.test(name)) {
+                const possibleInitials = name.substring(0, 2).toUpperCase();
+                if (allAllowedNames.includes(possibleInitials)) {
+                    return possibleInitials;
+                }
+                const match = name.match(/^([a-z])[aeiou]*([a-z])/i);
+                if (match) {
+                    const initials = (match[1] + match[2]).toUpperCase();
+                    if (allAllowedNames.includes(initials)) {
+                        return initials;
+                    }
+                }
             }
-        }
-    }
-    
-    return null;
-};
+            
+            return null;
+        };
+
         const getDepartment = (name) => {
             for (const [dept, names] of Object.entries(departments)) {
                 if (names.includes(name)) return dept;
@@ -271,7 +272,7 @@
             if (percentage >= 40) return { bg: 'from-orange-500 to-yellow-400', text: 'text-orange-300', icon: 'bg-orange-600/20', border: 'border-orange-400' };
             return { bg: 'from-red-500 to-orange-400', text: 'text-red-300', icon: 'bg-red-600/20', border: 'border-red-400' };
         };
-                // Performance Chart Component
+       // Performance Chart Component
         const PerformanceChart = ({ performanceData, dateRange }) => {
             const chartRef = useRef(null);
             const chartInstance = useRef(null);
@@ -367,57 +368,58 @@
                     const rows2 = result2.values || [];
 
                     const collectionResults = [];
-            for (const sheetName of COLLECTION_SHEETS) {
-                try {
-                    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID_2}/values/${sheetName}!A:F?key=${API_KEY}`;
-                    const response = await fetch(url);
-                    if (response.ok) {
-                        const result = await response.json();
-                        collectionResults.push({ sheetName, rows: result.values || [] });
-                    } else {
-                        collectionResults.push({ sheetName, rows: [] });
+                    for (const sheetName of COLLECTION_SHEETS) {
+                        try {
+                            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID_2}/values/${sheetName}!A:F?key=${API_KEY}`;
+                            const response = await fetch(url);
+                            if (response.ok) {
+                                const result = await response.json();
+                                collectionResults.push({ sheetName, rows: result.values || [] });
+                            } else {
+                                collectionResults.push({ sheetName, rows: [] });
+                            }
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        } catch (err) {
+                            console.warn(`Failed to fetch ${sheetName}:`, err);
+                            collectionResults.push({ sheetName, rows: [] });
+                        }
                     }
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                } catch (err) {
-                    console.warn(`Failed to fetch ${sheetName}:`, err);
-                    collectionResults.push({ sheetName, rows: [] });
-                }
-            }
 
                     const productionResults = [];
-                        for (const sheetName of COLLECTION_SHEETS) {
-                            try {
-                                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID_3}/values/${sheetName}!A:C?key=${API_KEY}`;
-                                const response = await fetch(url);
-                                if (response.ok) {
-                                    const result = await response.json();
-                                    productionResults.push({ sheetName, rows: result.values || [] });
-                                } else {
-                                    productionResults.push({ sheetName, rows: [] });
-                                }
-                                await new Promise(resolve => setTimeout(resolve, 100));
-                            } catch (err) {
-                                console.warn(`Failed to fetch production from ${sheetName}:`, err);
+                    for (const sheetName of COLLECTION_SHEETS) {
+                        try {
+                            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID_3}/values/${sheetName}!A:C?key=${API_KEY}`;
+                            const response = await fetch(url);
+                            if (response.ok) {
+                                const result = await response.json();
+                                productionResults.push({ sheetName, rows: result.values || [] });
+                            } else {
                                 productionResults.push({ sheetName, rows: [] });
                             }
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        } catch (err) {
+                            console.warn(`Failed to fetch production from ${sheetName}:`, err);
+                            productionResults.push({ sheetName, rows: [] });
                         }
+                    }
+
                     const appointmentResults = [];
-                        for (const sheetName of COLLECTION_SHEETS) {
-                            try {
-                                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID_3}/values/${sheetName}!A:D?key=${API_KEY}`;
-                                const response = await fetch(url);
-                                if (response.ok) {
-                                    const result = await response.json();
-                                    appointmentResults.push({ sheetName, rows: result.values || [] });
-                                } else {
-                                    appointmentResults.push({ sheetName, rows: [] });
-                                }
-                                await new Promise(resolve => setTimeout(resolve, 100));
-                            } catch (err) {
-                                console.warn(`Failed to fetch appointments from ${sheetName}:`, err);
+                    for (const sheetName of COLLECTION_SHEETS) {
+                        try {
+                            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID_3}/values/${sheetName}!A:D?key=${API_KEY}`;
+                            const response = await fetch(url);
+                            if (response.ok) {
+                                const result = await response.json();
+                                appointmentResults.push({ sheetName, rows: result.values || [] });
+                            } else {
                                 appointmentResults.push({ sheetName, rows: [] });
                             }
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        } catch (err) {
+                            console.warn(`Failed to fetch appointments from ${sheetName}:`, err);
+                            appointmentResults.push({ sheetName, rows: [] });
                         }
+                    }
 
                     const parsedData = rows1.slice(1).map(row => ({
                         date: row[0] || '', task: row[3] || '', amount: row[4] || '',
@@ -513,7 +515,7 @@
             };
 
             useEffect(() => { fetchDataFromSheet(); }, []);
-                    // CALCULATION LOGIC - Part 1
+            // CALCULATION LOGIC - Part 1
             const calculatePerformance = () => {
                 if (!selectedName) return null;
 
@@ -553,29 +555,38 @@
                     numberOfDays = Math.max(1, uniqueDates.size);
                 }
 
+                // Filter by date range - CORRECTED VERSION
                 if (startDate) {
-                    const startDateObj = new Date(startDate);
-                    startDateObj.setHours(12, 0, 0, 0);
+                    const parts = startDate.split('-');
+                    const startDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                     filtered = filtered.filter(row => {
                         const rowDate = parseDate(row.date);
-                        return rowDate && rowDate >= startDateObj;
+                        if (!rowDate) return false;
+                        const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                        return rowDateOnly >= startDateObj;
                     });
                     filteredInsPmt = filteredInsPmt.filter(row => {
                         const rowDate = parseDate(row.date);
-                        return rowDate && rowDate >= startDateObj;
+                        if (!rowDate) return false;
+                        const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                        return rowDateOnly >= startDateObj;
                     });
                 }
-                
+
                 if (endDate) {
-                    const endDateObj = new Date(endDate);
-                    endDateObj.setHours(12, 0, 0, 0);
+                    const parts = endDate.split('-');
+                    const endDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                     filtered = filtered.filter(row => {
                         const rowDate = parseDate(row.date);
-                        return rowDate && rowDate <= endDateObj;
+                        if (!rowDate) return false;
+                        const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                        return rowDateOnly <= endDateObj;
                     });
                     filteredInsPmt = filteredInsPmt.filter(row => {
                         const rowDate = parseDate(row.date);
-                        return rowDate && rowDate <= endDateObj;
+                        if (!rowDate) return false;
+                        const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                        return rowDateOnly <= endDateObj;
                     });
                 }
 
@@ -636,21 +647,27 @@
                     });
                     
                     if (startDate) {
-                        const startDateObj = new Date(startDate);
-                        startDateObj.setHours(12, 0, 0, 0);
+                        const parts = startDate.split('-');
+                        const startDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                         filteredProduction = filteredProduction.filter(row => {
                             const rowDate = parseDate(row.date);
-                            return rowDate && rowDate >= startDateObj;
+                            if (!rowDate) return false;
+                            const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                            return rowDateOnly >= startDateObj;
                         });
                     }
+
                     if (endDate) {
-                        const endDateObj = new Date(endDate);
-                        endDateObj.setHours(12, 0, 0, 0);
+                        const parts = endDate.split('-');
+                        const endDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                         filteredProduction = filteredProduction.filter(row => {
                             const rowDate = parseDate(row.date);
-                            return rowDate && rowDate <= endDateObj;
+                            if (!rowDate) return false;
+                            const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                            return rowDateOnly <= endDateObj;
                         });
                     }
+
                     filteredProduction.forEach(row => {
                         if (row.amount && row.amount.toString().trim()) {
                             const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
@@ -663,22 +680,29 @@
                         let rowName = row.name.trim().replace(/^["']|["']$/g, '');
                         return rowName === selectedName;
                     });
+
                     if (startDate) {
-                        const startDateObj = new Date(startDate);
-                        startDateObj.setHours(12, 0, 0, 0);
+                        const parts = startDate.split('-');
+                        const startDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                         filteredAppointments = filteredAppointments.filter(row => {
                             const rowDate = parseDate(row.date);
-                            return rowDate && rowDate >= startDateObj;
+                            if (!rowDate) return false;
+                            const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                            return rowDateOnly >= startDateObj;
                         });
                     }
+
                     if (endDate) {
-                        const endDateObj = new Date(endDate);
-                        endDateObj.setHours(12, 0, 0, 0);
+                        const parts = endDate.split('-');
+                        const endDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                         filteredAppointments = filteredAppointments.filter(row => {
                             const rowDate = parseDate(row.date);
-                            return rowDate && rowDate <= endDateObj;
+                            if (!rowDate) return false;
+                            const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                            return rowDateOnly <= endDateObj;
                         });
                     }
+
                     totalCompletedAppointments = filteredAppointments.reduce((sum, row) => sum + (row.count || 0), 0);
                 }
 
@@ -740,27 +764,36 @@
                     });
 
                     if (startDate) {
-                        const startDateObj = new Date(startDate);
-                        startDateObj.setHours(12, 0, 0, 0);
+                        const parts = startDate.split('-');
+                        const startDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                         empFiltered = empFiltered.filter(row => {
                             const rowDate = parseDate(row.date);
-                            return rowDate && rowDate >= startDateObj;
+                            if (!rowDate) return false;
+                            const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                            return rowDateOnly >= startDateObj;
                         });
                         empFilteredInsPmt = empFilteredInsPmt.filter(row => {
                             const rowDate = parseDate(row.date);
-                            return rowDate && rowDate >= startDateObj;
+                            if (!rowDate) return false;
+                            const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                            return rowDateOnly >= startDateObj;
                         });
                     }
+
                     if (endDate) {
-                        const endDateObj = new Date(endDate);
-                        endDateObj.setHours(12, 0, 0, 0);
+                        const parts = endDate.split('-');
+                        const endDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                         empFiltered = empFiltered.filter(row => {
                             const rowDate = parseDate(row.date);
-                            return rowDate && rowDate <= endDateObj;
+                            if (!rowDate) return false;
+                            const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                            return rowDateOnly <= endDateObj;
                         });
                         empFilteredInsPmt = empFilteredInsPmt.filter(row => {
                             const rowDate = parseDate(row.date);
-                            return rowDate && rowDate <= endDateObj;
+                            if (!rowDate) return false;
+                            const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                            return rowDateOnly <= endDateObj;
                         });
                     }
 
@@ -790,22 +823,29 @@
                             let rowName = row.name.trim().replace(/^["']|["']$/g, '');
                             return rowName === empName;
                         });
+
                         if (startDate) {
-                            const startDateObj = new Date(startDate);
-                            startDateObj.setHours(12, 0, 0, 0);
+                            const parts = startDate.split('-');
+                            const startDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                             empFilteredProduction = empFilteredProduction.filter(row => {
                                 const rowDate = parseDate(row.date);
-                                return rowDate && rowDate >= startDateObj;
+                                if (!rowDate) return false;
+                                const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                                return rowDateOnly >= startDateObj;
                             });
                         }
+
                         if (endDate) {
-                            const endDateObj = new Date(endDate);
-                            endDateObj.setHours(12, 0, 0, 0);
+                            const parts = endDate.split('-');
+                            const endDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                             empFilteredProduction = empFilteredProduction.filter(row => {
                                 const rowDate = parseDate(row.date);
-                                return rowDate && rowDate <= endDateObj;
+                                if (!rowDate) return false;
+                                const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                                return rowDateOnly <= endDateObj;
                             });
                         }
+
                         empFilteredProduction.forEach(row => {
                             if (row.amount && row.amount.toString().trim()) {
                                 const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
@@ -818,22 +858,29 @@
                             let rowName = row.name.trim().replace(/^["']|["']$/g, '');
                             return rowName === empName;
                         });
+
                         if (startDate) {
-                            const startDateObj = new Date(startDate);
-                            startDateObj.setHours(12, 0, 0, 0);
+                            const parts = startDate.split('-');
+                            const startDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                             empFilteredAppointments = empFilteredAppointments.filter(row => {
                                 const rowDate = parseDate(row.date);
-                                return rowDate && rowDate >= startDateObj;
+                                if (!rowDate) return false;
+                                const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                                return rowDateOnly >= startDateObj;
                             });
                         }
+
                         if (endDate) {
-                            const endDateObj = new Date(endDate);
-                            endDateObj.setHours(12, 0, 0, 0);
+                            const parts = endDate.split('-');
+                            const endDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 12, 0, 0, 0);
                             empFilteredAppointments = empFilteredAppointments.filter(row => {
                                 const rowDate = parseDate(row.date);
-                                return rowDate && rowDate <= endDateObj;
+                                if (!rowDate) return false;
+                                const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate(), 12, 0, 0, 0);
+                                return rowDateOnly <= endDateObj;
                             });
                         }
+
                         stateAppointmentTotal += empFilteredAppointments.reduce((sum, row) => sum + (row.count || 0), 0);
                     }
 
@@ -893,7 +940,7 @@
                     const verificationPerf = verificationGoal > 0 ? (verificationCount / verificationGoal) * 100 : 0;
                     overallPerformance = Math.min(100, verificationPerf);
                 }
-                        // PERFORMANCE CHART DATA CALCULATION
+            // PERFORMANCE CHART DATA CALCULATION
                 let performanceChartData = [];
                 let dateRangeType = 'daily';
 
@@ -1144,7 +1191,8 @@
 
             const performance = calculatePerformance();
             const perfColor = performance ? getPerformanceColor(performance.overallPerformance) : null;
-                    // UI RENDERING
+
+            // UI RENDERING
             return (
                 <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
                     <div className="max-w-7xl mx-auto">
@@ -1387,12 +1435,3 @@
     </script>
 </body>
 </html>
-'''
-
-
-
-
-
-
-
-
