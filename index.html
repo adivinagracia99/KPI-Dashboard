@@ -947,9 +947,11 @@
                 (verificationPPerf * config.verificationP.weight)
             );
         } else {
-            // Standard verification performance
+            // Standard verification performance - count ALL verification types
             const verificationGoal = getEmployeeGoal(selectedName, 'verification') * numberOfDays;
-            const verificationCount = taskCounts['Verification'] || 0;
+            const verificationCount = (taskCounts['Verification'] || 0) + 
+                                     (taskCounts['Verification (M)'] || 0) + 
+                                     (taskCounts['Verification (P)'] || 0);
             const verificationPerf = verificationGoal > 0 ? (verificationCount / verificationGoal) * 100 : 0;
             overallPerformance = Math.min(100, verificationPerf);
         }
@@ -1308,7 +1310,7 @@
                                                 </h3>
                                             </div>
                                             <p className="text-white text-3xl font-bold mb-2">
-                                                {performance.department === 'AR Department' && performance.collectionGoal ? `$${performance.collectionGoal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : performance.department === 'Outbound Department' && performance.productionGoal ? `$${performance.productionGoal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : performance.verificationGoal || 0}
+                                                {performance.department === 'AR Department' && performance.collectionGoal ? `$${performance.collectionGoal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : performance.department === 'Outbound Department' && performance.productionGoal ? `$${performance.productionGoal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : Math.round(performance.verificationGoal || 0)}
                                             </p>
                                             <p className="text-purple-300 text-sm font-medium">{performance.numberOfDays} working {performance.numberOfDays === 1 ? 'day' : 'days'}</p>
                                         </div>
@@ -1457,6 +1459,7 @@
     </script>
 </body>
 </html>
+
 
 
 
