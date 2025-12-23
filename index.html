@@ -79,7 +79,6 @@
             verificationM: { goal: 45, weight: 0.80 },  // 80% weight, 45 per day
             verificationP: { goal: 7, weight: 0.20 }    // 20% weight, 7 per day
             }
-         }
         };
 
         const tasksList = [
@@ -873,18 +872,20 @@
                     }
 
                     if (empDept === 'Verification Department') {
-                       empFiltered.forEach(row => {
-                    const standardTaskName = findTaskName(row.task.trim());
-                    // Count both Verification, Verification (M), and Verification (P)
-                      if (standardTaskName === 'Verification' || standardTaskName === 'Verification (M)' || standardTaskName === 'Verification (P)') {
-                           if (row.amount && row.amount.toString().trim()) {
-                              const amountValue = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
-                             if (!isNaN(amountValue) && amountValue > 0) stateVerificationTotal += amountValue;
-                           }
-                           }
-                           }
-                  });
-                  }
+                        empFiltered.forEach(row => {
+                            const standardTaskName = findTaskName(row.task.trim());
+                            if (standardTaskName === 'Verification' || 
+                                standardTaskName === 'Verification (M)' || 
+                                standardTaskName === 'Verification (P)') {
+                                if (row.amount && row.amount.toString().trim()) {
+                                    const amountValue = parseFloat(row.amount.toString().replace(/[$,\s]/g, '').trim());
+                                    if (!isNaN(amountValue) && amountValue > 0) {
+                                        stateVerificationTotal += amountValue;
+                                    }
+                                }
+                            }
+                        });
+                    }
 
                     empFiltered.forEach(row => {
                         const standardTaskName = findTaskName(row.task.trim());
@@ -1456,5 +1457,6 @@
     </script>
 </body>
 </html>
+
 
 
