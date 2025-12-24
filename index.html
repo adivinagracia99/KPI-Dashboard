@@ -636,7 +636,7 @@
                             const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
                             if (!isNaN(amountValue) && amountValue > 0) totalAppointments += amountValue;
                         }
-                        if (standardTaskName === 'Inbound Call' || standardTaskName === 'Outbound Call') {
+                        if (standardTaskName === 'Outbound Call') {
                             const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
                             if (!isNaN(amountValue) && amountValue > 0) totalCalls += amountValue;
                         }
@@ -967,7 +967,7 @@
                                     const standardTaskName = findTaskName(row.task.trim());
                                     const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
                                     if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') dayAppointments += amountValue;
-                                    if (standardTaskName === 'Inbound Call' || standardTaskName === 'Outbound Call') dayCalls += amountValue;
+                                    if (standardTaskName === 'Outbound Call') dayCalls += amountValue;
                                 });
                                 const dayProductionData = productionData.filter(row => {
                                     const rowName = row.name.trim().replace(/^["']|["']$/g, '');
@@ -1042,7 +1042,7 @@
                                     const standardTaskName = findTaskName(row.task.trim());
                                     const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
                                     if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') weekAppointments += amountValue;
-                                    if (standardTaskName === 'Inbound Call' || standardTaskName === 'Outbound Call') weekCalls += amountValue;
+                                     weekCalls += amountValue;
                                 });
                                 const weekProductionData = productionData.filter(row => {
                                     const rowName = row.name.trim().replace(/^["']|["']$/g, '');
@@ -1121,7 +1121,7 @@
                                     const standardTaskName = findTaskName(row.task.trim());
                                     const amountValue = parseFloat((row.amount || '1').toString().replace(/[$,\s]/g, '').trim());
                                     if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') monthAppointments += amountValue;
-                                    if (standardTaskName === 'Inbound Call' || standardTaskName === 'Outbound Call') monthCalls += amountValue;
+                                     monthCalls += amountValue;
                                 });
                                 const monthProductionData = productionData.filter(row => {
                                     const rowName = row.name.trim().replace(/^["']|["']$/g, '');
@@ -1446,6 +1446,7 @@
     </script>
 </body>
 </html>
+
 
 
 
