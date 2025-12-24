@@ -466,68 +466,42 @@
                         }
                     });
 
-                    // Universal number parser - handles any format
-const parseNumberSafely = (value) => {
-    if (!value) return 0;
-    // Convert to string and remove everything except digits, decimal point, and minus sign
-    const cleaned = value.toString().replace(/[^0-9.-]/g, '');
-    const parsed = parseFloat(cleaned);
-    return isNaN(parsed) ? 0 : parsed;
-};
-
-const parsedProductionData = [];
-productionResults.forEach(({ sheetName, rows }) => {
-    if (rows.length > 1) {
-        rows.slice(1).forEach(row => {
-            if (row.length >= 3) {
-                const rawName = row[2] || '';
-                const cleanName = normalizeEmployeeName(rawName);
-                const dateValue = row[0] || '';
-                const amountValue = row[1] || '';
-                
-                if (cleanName && dateValue && amountValue && allAllowedNames.includes(cleanName)) {
-                    const parsedAmount = parseNumberSafely(amountValue);
-                    if (parsedAmount > 0) {
-                        parsedProductionData.push({ 
-                            date: dateValue, 
-                            amount: parsedAmount, 
-                            name: cleanName, 
-                            office: sheetName, 
-                            source: `Production-${sheetName}` 
-                        });
-                    }
-                }
-            }
-        });
-    }
-});
+                    const parsedProductionData = [];
+                    productionResults.forEach(({ sheetName, rows }) => {
+                        if (rows.length > 1) {
+                            rows.slice(1).forEach(row => {
+                                if (row.length >= 3) {
+                                    const rawName = row[2] || '';
+                                    const cleanName = normalizeEmployeeName(rawName);
+                                    const dateValue = row[0] || '';
+                                    const amountValue = row[1] || '';
+                                    if (cleanName && dateValue && amountValue && allAllowedNames.includes(cleanName)) {
+                                        parsedProductionData.push({ date: dateValue, amount: amountValue, name: cleanName, office: sheetName, source: `Production-${sheetName}` });
+                                    }
+                                }
+                            });
+                        }
+                    });
 
                     const parsedAppointmentData = [];
-appointmentResults.forEach(({ sheetName, rows }) => {
-    if (rows.length > 1) {
-        rows.slice(1).forEach(row => {
-            if (row.length >= 4) {
-                const rawName = row[2] || '';
-                const cleanName = normalizeEmployeeName(rawName);
-                const dateValue = row[0] || '';
-                const appointmentCount = row[3] || '';
-                
-                if (cleanName && dateValue && appointmentCount && allAllowedNames.includes(cleanName)) {
-                    const count = parseNumberSafely(appointmentCount);
-                    if (count > 0) {
-                        parsedAppointmentData.push({ 
-                            date: dateValue, 
-                            name: cleanName, 
-                            count: count, 
-                            office: sheetName, 
-                            source: `Appointment-${sheetName}` 
-                        });
-                    }
-                }
-            }
-        });
-    }
-});
+                    appointmentResults.forEach(({ sheetName, rows }) => {
+                        if (rows.length > 1) {
+                            rows.slice(1).forEach(row => {
+                                if (row.length >= 4) {
+                                    const rawName = row[2] || '';
+                                    const cleanName = normalizeEmployeeName(rawName);
+                                    const dateValue = row[0] || '';
+                                    const appointmentCount = row[3] || '';
+                                    if (cleanName && dateValue && appointmentCount && allAllowedNames.includes(cleanName)) {
+                                        const count = parseFloat(appointmentCount.toString().replace(/[^0-9.]/g, ''));
+                                        if (!isNaN(count) && count > 0) {
+                                            parsedAppointmentData.push({ date: dateValue, name: cleanName, count: count, office: sheetName, source: `Appointment-${sheetName}` });
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
 
                     setData(parsedData);
                     const combinedInsPmt = [...parsedInsPmt, ...parsedCollectionData];
@@ -706,9 +680,17 @@ appointmentResults.forEach(({ sheetName, rows }) => {
                     }
 
                     filteredProduction.forEach(row => {
-    const amount = parseNumberSafely(row.amount);
-    if (amount > 0) totalProductionAmount += amount;
+    if (row.amount && row.amount.toString().trim()) {
+        const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
+        const amount = parseFloat(cleanAmount);
+        console.log(`Production row for ${selectedName}: amount=${row.amount}, cleaned=${cleanAmount}, parsed=${amount}`);
+        if (!isNaN(amount) && amount > 0) {
+            totalProductionAmount += amount;
+            console.log(`Added ${amount}, total now: ${totalProductionAmount}`);
+        }
+    }
 });
+console.log(`Final totalProductionAmount for ${selectedName}: ${totalProductionAmount}`);
 
                     let filteredAppointments = appointmentData.filter(row => {
                         let rowName = row.name.trim().replace(/^["']|["']$/g, '');
@@ -1473,7 +1455,6 @@ console.log(`Final totalCompletedAppointments for ${selectedName}: ${totalComple
     </script>
 </body>
 </html>
-
 
 
 
