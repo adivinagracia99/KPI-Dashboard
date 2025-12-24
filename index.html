@@ -680,12 +680,17 @@
                     }
 
                     filteredProduction.forEach(row => {
-                        if (row.amount && row.amount.toString().trim()) {
-                            const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
-                            const amount = parseFloat(cleanAmount);
-                            if (!isNaN(amount) && amount > 0) totalProductionAmount += amount;
-                        }
-                    });
+    if (row.amount && row.amount.toString().trim()) {
+        const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
+        const amount = parseFloat(cleanAmount);
+        console.log(`Production row for ${selectedName}: amount=${row.amount}, cleaned=${cleanAmount}, parsed=${amount}`);
+        if (!isNaN(amount) && amount > 0) {
+            totalProductionAmount += amount;
+            console.log(`Added ${amount}, total now: ${totalProductionAmount}`);
+        }
+    }
+});
+console.log(`Final totalProductionAmount for ${selectedName}: ${totalProductionAmount}`);
 
                     let filteredAppointments = appointmentData.filter(row => {
                         let rowName = row.name.trim().replace(/^["']|["']$/g, '');
@@ -714,7 +719,11 @@
                         });
                     }
 
-                    totalCompletedAppointments = filteredAppointments.reduce((sum, row) => sum + (row.count || 0), 0);
+                    totalCompletedAppointments = filteredAppointments.reduce((sum, row) => {
+    console.log(`Appointment row for ${selectedName}: count=${row.count}, office=${row.office}, date=${row.date}`);
+    return sum + (row.count || 0);
+}, 0);
+console.log(`Final totalCompletedAppointments for ${selectedName}: ${totalCompletedAppointments}`);
                 }
 
                 // Add Ins Pmt / Collection sheet amounts to AR total
@@ -1446,6 +1455,7 @@
     </script>
 </body>
 </html>
+
 
 
 
