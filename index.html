@@ -140,6 +140,8 @@
             'WA-TM', 'WA-UP', 'WA-DP', 'WA-AD', 'WA-WO-FD', 'WA-WO-BD', 'AK'
         ];
 
+        // PART 2/5: HELPER FUNCTIONS
+        
         // Unified numeric value parser - handles all formats consistently
         const parseNumericValue = (value) => {
             if (value === null || value === undefined) return 0;
@@ -287,6 +289,73 @@
             return { bg: 'from-red-500 to-orange-400', text: 'text-red-300', icon: 'bg-red-600/20', border: 'border-red-400' };
         };
 
+        // PART 3/5: PERFORMANCE CHART COMPONENT
+        const PerformanceChart = ({ performanceData, dateRange }) => {
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+
+            useEffect(() => {
+                if (!chartRef.current || !performanceData || performanceData.length === 0) return;
+                if (chartInstance.current) chartInstance.current.destroy();
+
+                const ctx = chartRef.current.getContext('2d');
+                chartInstance.current = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: performanceData.map(d => d.label),
+                        datasets: [{
+                            label: 'Performance %',
+                            data: performanceData.map(d => d.value),
+                            borderColor: 'rgb(34, 211, 238)',
+                            backgroundColor: 'rgba(34, 211, 238, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgb(34, 211, 238)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#cbd5e1',
+                                borderColor: '#475569',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: false,
+                                callbacks: { label: (context) => `Performance: ${context.parsed.y.toFixed(1)}%` }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { color: '#94a3b8', callback: (value) => value + '%' },
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#94a3b8' },
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                            }
+                        }
+                    }
+                });
+
+                return () => { if (chartInstance.current) chartInstance.current.destroy(); };
+            }, [performanceData]);
+
+            return <div className="h-80"><canvas ref={chartRef}></canvas></div>;
+        };
+
+        // PART 3/5: MAIN COMPONENT - STATE AND DATA FETCHING
         const PerformanceTracker = () => {
             const [data, setData] = useState([]);
             const [insPmtData, setInsPmtData] = useState([]);
@@ -464,18 +533,20 @@
 
             useEffect(() => { fetchDataFromSheet(); }, []);
 
+            // PART 4/5: CALCULATION LOGIC
             const calculatePerformance = () => {
                 if (!selectedName) return null;
 
-                let filtered = data.filter(row => {
-                    let rowName = row.name.trim().replace(/^["']|["']$/g, '');
-                    return rowName === selectedName;
-                });
-                
-                let filteredInsPmt = insPmtData.filter(row => {
-                    let rowName = row.name.trim().replace(/^["']|["']$/g, '');
-                    return rowName === selectedName;
-                });
+                try {
+                    let filtered = data.filter(row => {
+                        let rowName = row.name.trim().replace(/^["']|["']$/g, '');
+                        return rowName === selectedName;
+                    });
+                    
+                    let filteredInsPmt = insPmtData.filter(row => {
+                        let rowName = row.name.trim().replace(/^["']|["']$/g, '');
+                        return rowName === selectedName;
+                    });
 
                 let numberOfDays = 1;
                 if (startDate && endDate) {
@@ -875,6 +946,7 @@
                     }
                 }
 
+                // PART 5/5: PERFORMANCE CHART DATA GENERATION
                 let performanceChartData = [];
                 let dateRangeType = 'daily';
 
@@ -1129,10 +1201,29 @@
                     verificationGoal: userDepartment === 'Verification Department' ? getEmployeeGoal(selectedName, 'verification') * numberOfDays : null,
                     performanceChartData, dateRangeType
                 };
-            };
+            } catch (error) {
+                console.error('Error in calculatePerformance:', error);
+                setError(`Calculation error: ${error.message}`);
+                return null;
+            }
+        };
 
             const performance = calculatePerformance();
             const perfColor = performance ? getPerformanceColor(performance.overallPerformance) : null;
+
+            // Debug logging
+            useEffect(() => {
+                if (selectedName) {
+                    console.log('Selected Name:', selectedName);
+                    console.log('Performance Data:', performance);
+                    if (performance) {
+                        console.log('Department:', performance.department);
+                        console.log('Total Collection:', performance.totalCollectionAmount);
+                        console.log('Total Production:', performance.totalProductionAmount);
+                        console.log('Completed Appointments:', performance.totalCompletedAppointments);
+                    }
+                }
+            }, [selectedName, startDate, endDate]);
 
             // PART 5/5: UI RENDERING
             return (
@@ -1182,7 +1273,16 @@
 
                         {error && <div className="mb-6 p-4 bg-red-900/50 border border-red-700 rounded-xl text-red-200 text-sm shadow-lg">{error}</div>}
 
-                        {performance && selectedName && (
+                        {loading && (
+                            <div className="text-center py-20">
+                                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-12 border border-slate-600 inline-block shadow-2xl">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+                                    <p className="text-slate-300 text-lg">Loading data...</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {!loading && performance && selectedName && (
                             <div className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                     <div className="bg-gradient-to-br from-slate-800 via-slate-800 to-cyan-900/20 rounded-2xl p-6 border border-cyan-500/30 hover:border-cyan-400 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all relative overflow-hidden group">
@@ -1355,7 +1455,7 @@
                             </div>
                         )}
 
-                        {!selectedName && (
+                        {!loading && !selectedName && (
                             <div className="text-center py-20">
                                 <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-12 border border-slate-600 inline-block shadow-2xl">
                                     <div className="bg-gradient-to-br from-blue-600/30 to-blue-500/20 p-4 rounded-full inline-block mb-4">
