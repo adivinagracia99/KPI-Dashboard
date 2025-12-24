@@ -679,13 +679,34 @@
                         });
                     }
 
-                    filteredProduction.forEach(row => {
-                        if (row.amount && row.amount.toString().trim()) {
-                            const cleanAmount = row.amount.toString().replace(/[$,\s]/g, '').trim();
-                            const amount = parseFloat(cleanAmount);
-                            if (!isNaN(amount) && amount > 0) totalProductionAmount += amount;
-                        }
+                    const parsedProductionData = [];
+productionResults.forEach(({ sheetName, rows }) => {
+    console.log(`Processing production sheet: ${sheetName}, rows: ${rows.length}`);
+    if (rows.length > 1) {
+        rows.slice(1).forEach(row => {
+            if (row.length >= 3) {
+                const rawName = row[2] || '';
+                const cleanName = normalizeEmployeeName(rawName);
+                const dateValue = row[0] || '';
+                const amountValue = row[1] || '';
+                console.log(`Row data - Date: ${dateValue}, Amount: ${amountValue}, RawName: ${rawName}, CleanName: ${cleanName}`);
+                if (cleanName && dateValue && amountValue && allAllowedNames.includes(cleanName)) {
+                    parsedProductionData.push({ 
+                        date: dateValue, 
+                        amount: amountValue, 
+                        name: cleanName, 
+                        office: sheetName, 
+                        source: `Production-${sheetName}` 
                     });
+                    console.log(`✓ Added production data for ${cleanName}`);
+                } else {
+                    console.log(`✗ Skipped - cleanName: ${cleanName}, dateValue: ${dateValue}, amountValue: ${amountValue}, inAllowedNames: ${allAllowedNames.includes(cleanName)}`);
+                }
+            }
+        });
+    }
+});
+console.log(`Total production records parsed: ${parsedProductionData.length}`);
 
                     let filteredAppointments = appointmentData.filter(row => {
                         let rowName = row.name.trim().replace(/^["']|["']$/g, '');
@@ -1446,6 +1467,7 @@
     </script>
 </body>
 </html>
+
 
 
 
