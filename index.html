@@ -929,33 +929,25 @@
                     const collectionPerf = collectionGoal > 0 ? (totalCollectionAmount / collectionGoal) * 100 : 0;
                     overallPerformance = Math.min(100, collectionPerf);
                 } else if (userDepartment === 'Verification Department') {
-        // Check if employee has mixed verification goals
-        if (mixedVerificationEmployees[selectedName]) {
-            const config = mixedVerificationEmployees[selectedName];
-            const verificationMCount = taskCounts['Verification (M)'] || 0;
-            const verificationPCount = taskCounts['Verification (P)'] || 0;
-        
-            const verificationMGoal = config.verificationM.goal * numberOfDays;
-            const verificationPGoal = config.verificationP.goal * numberOfDays;
-        
-            const verificationMPerf = verificationMGoal > 0 ? (verificationMCount / verificationMGoal) * 100 : 0;
-            const verificationPPerf = verificationPGoal > 0 ? (verificationPCount / verificationPGoal) * 100 : 0;
-        
-            // Weighted performance calculation
-            overallPerformance = Math.min(100, 
-                (verificationMPerf * config.verificationM.weight) + 
-                (verificationPPerf * config.verificationP.weight)
-            );
-        } else {
-            // Standard verification performance - count ALL verification types
-            const verificationGoal = getEmployeeGoal(selectedName, 'verification') * numberOfDays;
-            const verificationCount = (taskCounts['Verification'] || 0) + 
-                                     (taskCounts['Verification (M)'] || 0) + 
-                                     (taskCounts['Verification (P)'] || 0);
-            const verificationPerf = verificationGoal > 0 ? (verificationCount / verificationGoal) * 100 : 0;
-            overallPerformance = Math.min(100, verificationPerf);
-        }
-    }
+                    // Check if employee has mixed verification goals (CF only)
+                    if (mixedVerificationEmployees[selectedName]) {
+                        // CF: Use total count vs total goal (allows compensation between M and P)
+                        const verificationGoal = getEmployeeGoal(selectedName, 'verification') * numberOfDays;
+                        const verificationCount = (taskCounts['Verification'] || 0) + 
+                                                 (taskCounts['Verification (M)'] || 0) + 
+                                                 (taskCounts['Verification (P)'] || 0);
+                        const verificationPerf = verificationGoal > 0 ? (verificationCount / verificationGoal) * 100 : 0;
+                        overallPerformance = Math.min(100, verificationPerf);
+                    } else {
+                        // Standard verification employees (GZ, JCB, JTL, KR, MLC, RS)
+                        const verificationGoal = getEmployeeGoal(selectedName, 'verification') * numberOfDays;
+                        const verificationCount = (taskCounts['Verification'] || 0) + 
+                                                 (taskCounts['Verification (M)'] || 0) + 
+                                                 (taskCounts['Verification (P)'] || 0);
+                        const verificationPerf = verificationGoal > 0 ? (verificationCount / verificationGoal) * 100 : 0;
+                        overallPerformance = Math.min(100, verificationPerf);
+                    }
+                }
             // PERFORMANCE CHART DATA CALCULATION
                 let performanceChartData = [];
                 let dateRangeType = 'daily';
@@ -1459,6 +1451,7 @@
     </script>
 </body>
 </html>
+
 
 
 
