@@ -350,27 +350,28 @@
             }
         };
         
-        const appendToAdminConfig = async (rowData) => {
-            try {
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Admin_Config!A:I:append?valueInputOption=RAW&key=${API_KEY}`;
-                const now = new Date().toLocaleDateString();
-                const fullRow = [...rowData, now];
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        values: [fullRow]
-                    })
-                });
-                
-                if (!response.ok) throw new Error('Failed to append to Admin_Config');
-                return await response.json();
-            } catch (error) {
-                console.error('Error appending to admin config:', error);
-                throw error;
-            }
-        };
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwrzZZYDF8U0P7JhDxZ7KSg93Ludykl8yOMMtzWL7ptnEblSKx3cZcp44VOVJf-A7qv/exec'; // Paste the URL from step 2
+
+const appendToAdminConfig = async (rowData) => {
+    try {
+        const now = new Date().toLocaleDateString();
+        const fullRow = [...rowData, now];
+        
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                values: [fullRow]
+            })
+        });
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Error appending to admin config:', error);
+        throw error;
+    }
+};
         
         const getEmployeeAssignment = (employees, employeeCode, month, year) => {
             const applicable = employees.filter(emp => 
@@ -1542,4 +1543,5 @@
     </script>
 </body>
 </html>
+
 
