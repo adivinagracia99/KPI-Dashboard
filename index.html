@@ -312,23 +312,25 @@
         };
 
         const appendToAdminConfig = async (rowData) => {
-            try {
-                const now = new Date().toLocaleDateString();
-                const fullRow = [...rowData, now];
-                
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ values: [fullRow] })
-                });
-                
-                return { success: true };
-            } catch (error) {
-                console.error('Error appending to admin config:', error);
-                throw error;
-            }
-        };
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    action: 'append',
+                    values: [rowData]
+                })
+            });
+            
+            // Wait for write to complete
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return { success: true };
+        } catch (error) {
+            console.error('Error appending to admin config:', error);
+            throw error;
+        }
+    };
 
         const getEmployeeAssignments = (employees, employeeCode, month, year) => {
             const applicable = employees.filter(emp => 
@@ -534,15 +536,19 @@
                     }
 
                     if (allRows.length > 0) {
-                        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Admin_Config!A:I:append?valueInputOption=RAW&key=${API_KEY}`;
-                        const response = await fetch(url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ values: allRows })
-                        });
-                
-                        if (!response.ok) throw new Error('Failed to save goals');
-                    }
+                    await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            action: 'append',
+                            values: allRows 
+                        })
+                    });
+                    
+                    // Wait for write to complete
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                }
 
                     setSuccess('Goals saved successfully!');
                     setTimeout(() => { onClose(); }, 1500);
@@ -707,15 +713,19 @@
                     }
 
                     if (allRows.length > 0) {
-                        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Admin_Config!A:I:append?valueInputOption=RAW&key=${API_KEY}`;
-                        const response = await fetch(url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ values: allRows })
-                        });
-                
-                        if (!response.ok) throw new Error('Failed to save assignments');
-                    }
+                    await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            action: 'append',
+                            values: allRows 
+                        })
+                    });
+                    
+                    // Wait for write to complete
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                }
 
                     setSuccess('Assignments saved successfully!');
                     setTimeout(() => { onClose(); }, 1500);
@@ -2184,3 +2194,4 @@
     </script>
 </body>
 </html>
+
