@@ -726,25 +726,30 @@
             const [success, setSuccess] = useState('');
 
             useEffect(() => {
-                const initialAssignments = configData.employeeCodes.map(empCode => {
-                    const existingAssignments = getEmployeeAssignments(configData.employees, empCode, selectedMonth, selectedYear,true);
-                    const latest = existingAssignments[0];
-                    
-                    // Get all offices for this employee
-                    const offices = existingAssignments
-                        .filter(a => a.office)
-                        .map(a => a.office)
-                        .filter((office, index, self) => self.indexOf(office) === index); // unique offices
-                    
-                    return {
-                        employeeCode: empCode,
-                        department: latest?.department || '',
-                        offices: offices.length > 0 ? offices : [],
-                        state: latest?.state || ''
-                    };
-                });
-                setAssignments(initialAssignments);
-            }, [selectedMonth, selectedYear, configData]);
+    const initialAssignments = configData.employeeCodes.map(empCode => {
+        const existingAssignments = getEmployeeAssignments(configData.employees, empCode, selectedMonth, selectedYear, true);
+        const latest = existingAssignments[0];
+        
+        // Get all offices for this employee
+        const offices = existingAssignments
+            .filter(a => a.office)
+            .map(a => a.office)
+            .filter((office, index, self) => self.indexOf(office) === index); // unique offices
+        
+        return {
+            employeeCode: empCode,
+            department: latest?.department || '',
+            offices: offices.length > 0 ? offices : [],
+            state: latest?.state || '',
+            originalConfig: {
+                department: latest?.department || '',
+                offices: offices.length > 0 ? offices : [],
+                state: latest?.state || ''
+            }
+        };
+    });
+    setAssignments(initialAssignments);
+}, [selectedMonth, selectedYear, configData]);
 
             const handleAssignmentChange = (empCode, field, value) => {
                 setAssignments(prev => prev.map(a => 
@@ -779,11 +784,16 @@
         let totalAdded = 0;
         
         for (const assignment of assignments) {
+            // Skip if no department or no offices selected
+            if (!assignment.department || assignment.offices.length === 0) {
+                continue;
+            }
+            
             const hasChanged = 
-                assignment.department !== assignment.originalConfig.department ||
-                assignment.state !== assignment.originalConfig.state ||
-                assignment.offices.length !== assignment.originalConfig.offices.length ||
-                !assignment.offices.every(office => assignment.originalConfig.offices.includes(office));
+                assignment.department !== (assignment.originalConfig?.department || '') ||
+                assignment.state !== (assignment.originalConfig?.state || '') ||
+                assignment.offices.length !== (assignment.originalConfig?.offices || []).length ||
+                !assignment.offices.every(office => (assignment.originalConfig?.offices || []).includes(office));
             
             const existingForMonth = getEmployeeAssignments(
                 configData.employees, 
@@ -2360,6 +2370,7 @@ while (currentDate <= endMonth) {
     </script>
 </body>
 </html>
+
 
 
 
