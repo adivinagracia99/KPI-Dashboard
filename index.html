@@ -547,11 +547,11 @@
                     });
                     
                     // Wait for write to complete
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    await new Promise(resolve => setTimeout(resolve, 3000));
                 }
 
                     setSuccess('Goals saved successfully!');
-                    setTimeout(() => { onClose(); }, 1500);
+                    setTimeout(() => { onClose(); }, 2000);
                 } catch (error) {
                     console.error('Error saving goals:', error);
                     alert('Failed to save goals: ' + error.message);
@@ -724,11 +724,11 @@
                     });
                     
                     // Wait for write to complete
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    await new Promise(resolve => setTimeout(resolve, 3000));
                 }
 
                     setSuccess('Assignments saved successfully!');
-                    setTimeout(() => { onClose(); }, 1500);
+                    setTimeout(() => { onClose(); }, 2000);
                 } catch (error) {
                     console.error('Error saving assignments:', error);
                     alert('Failed to save assignments: ' + error.message);
@@ -2194,5 +2194,6 @@
     </script>
 </body>
 </html>
+
 
 
