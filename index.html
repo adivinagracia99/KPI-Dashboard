@@ -396,6 +396,207 @@
             return applicable[0].goalValue || 0;
         };
 
+        // Chart Components
+        const PerformanceChart = ({ performanceData }) => {
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+
+            useEffect(() => {
+                if (!chartRef.current || !performanceData || performanceData.length === 0) return;
+                if (chartInstance.current) chartInstance.current.destroy();
+
+                const ctx = chartRef.current.getContext('2d');
+                chartInstance.current = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: performanceData.map(d => d.label),
+                        datasets: [{
+                            label: 'Performance %',
+                            data: performanceData.map(d => d.value),
+                            borderColor: 'rgb(34, 211, 238)',
+                            backgroundColor: 'rgba(34, 211, 238, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgb(34, 211, 238)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#cbd5e1',
+                                borderColor: '#475569',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: false,
+                                callbacks: { label: (context) => `Performance: ${context.parsed.y.toFixed(1)}%` }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { color: '#94a3b8', callback: (value) => value + '%' },
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#94a3b8' },
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                            }
+                        }
+                    }
+                });
+
+                return () => { if (chartInstance.current) chartInstance.current.destroy(); };
+            }, [performanceData]);
+
+            return <div className="h-80"><canvas ref={chartRef}></canvas></div>;
+        };
+
+        // NEW: Pie Chart Component
+        const PieChart = ({ data, title }) => {
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+
+            useEffect(() => {
+                if (!chartRef.current || !data || data.length === 0) return;
+                if (chartInstance.current) chartInstance.current.destroy();
+
+                const ctx = chartRef.current.getContext('2d');
+                chartInstance.current = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: data.map(d => d.label),
+                        datasets: [{
+                            data: data.map(d => d.value),
+                            backgroundColor: [
+                                'rgba(34, 211, 238, 0.8)',
+                                'rgba(168, 85, 247, 0.8)',
+                                'rgba(251, 191, 36, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgb(34, 211, 238)',
+                                'rgb(168, 85, 247)',
+                                'rgb(251, 191, 36)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    color: '#cbd5e1',
+                                    padding: 15,
+                                    font: { size: 11 }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#cbd5e1',
+                                borderColor: '#475569',
+                                borderWidth: 1,
+                                padding: 12,
+                                callbacks: {
+                                    label: (context) => {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value.toLocaleString()} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                return () => { if (chartInstance.current) chartInstance.current.destroy(); };
+            }, [data]);
+
+            return <div className="h-64"><canvas ref={chartRef}></canvas></div>;
+        };
+
+        // NEW: Radar Chart Component
+        const RadarChart = ({ data, title }) => {
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+
+            useEffect(() => {
+                if (!chartRef.current || !data || data.length === 0) return;
+                if (chartInstance.current) chartInstance.current.destroy();
+
+                const ctx = chartRef.current.getContext('2d');
+                chartInstance.current = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: data.map(d => d.label),
+                        datasets: [{
+                            label: 'Task Distribution',
+                            data: data.map(d => d.value),
+                            backgroundColor: 'rgba(34, 211, 238, 0.2)',
+                            borderColor: 'rgb(34, 211, 238)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgb(34, 211, 238)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(34, 211, 238)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                ticks: { 
+                                    color: '#94a3b8',
+                                    backdropColor: 'transparent'
+                                },
+                                grid: { color: 'rgba(148, 163, 184, 0.2)' },
+                                pointLabels: { 
+                                    color: '#cbd5e1',
+                                    font: { size: 11 }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#cbd5e1',
+                                borderColor: '#475569',
+                                borderWidth: 1,
+                                padding: 12,
+                                callbacks: {
+                                    label: (context) => `${context.label}: ${context.parsed.r.toFixed(0)} tasks`
+                                }
+                            }
+                        }
+                    }
+                });
+
+                return () => { if (chartInstance.current) chartInstance.current.destroy(); };
+            }, [data]);
+
+            return <div className="h-80"><canvas ref={chartRef}></canvas></div>;
+        };
+
         // Admin Modal Components
         const PasswordModal = ({ onClose, onSuccess }) => {
             const [password, setPassword] = useState('');
@@ -788,7 +989,7 @@
     }
 };
 
-            return (
+        return (
                 <div className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
                     <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-600 shadow-2xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
                         <div className="flex items-center justify-between mb-6">
@@ -928,7 +1129,7 @@
                 }));
             };
 
-            const handleSave = async () => {
+    const handleSave = async () => {
     setLoading(true);
     setSuccess('');
     try {
@@ -1121,7 +1322,7 @@
             );
         };
 
-        const AddEmployee = ({ onClose }) => {
+    const AddEmployee = ({ onClose }) => {
             const [employeeCode, setEmployeeCode] = useState('');
             const [loading, setLoading] = useState(false);
             const [success, setSuccess] = useState('');
@@ -1227,71 +1428,6 @@
                 </div>
             </div>
         );
-    };
-
-    const PerformanceChart = ({ performanceData }) => {
-        const chartRef = useRef(null);
-        const chartInstance = useRef(null);
-
-        useEffect(() => {
-            if (!chartRef.current || !performanceData || performanceData.length === 0) return;
-            if (chartInstance.current) chartInstance.current.destroy();
-
-            const ctx = chartRef.current.getContext('2d');
-            chartInstance.current = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: performanceData.map(d => d.label),
-                    datasets: [{
-                        label: 'Performance %',
-                        data: performanceData.map(d => d.value),
-                        borderColor: 'rgb(34, 211, 238)',
-                        backgroundColor: 'rgba(34, 211, 238, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: 'rgb(34, 211, 238)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleColor: '#fff',
-                            bodyColor: '#cbd5e1',
-                            borderColor: '#475569',
-                            borderWidth: 1,
-                            padding: 12,
-                            displayColors: false,
-                            callbacks: { label: (context) => `Performance: ${context.parsed.y.toFixed(1)}%` }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: { color: '#94a3b8', callback: (value) => value + '%' },
-                            grid: { color: 'rgba(148, 163, 184, 0.1)' }
-                        },
-                        x: {
-                            ticks: { color: '#94a3b8' },
-                            grid: { color: 'rgba(148, 163, 184, 0.1)' }
-                        }
-                    }
-                }
-            });
-
-            return () => { if (chartInstance.current) chartInstance.current.destroy(); };
-        }, [performanceData]);
-
-        return <div className="h-80"><canvas ref={chartRef}></canvas></div>;
     };
 
     // PART 3: Main Dashboard Component
@@ -1482,7 +1618,7 @@
 
             useEffect(() => { fetchDataFromSheet(); }, []);
 
-            const calculatePerformance = () => {
+    const calculatePerformance = () => {
                 if (!selectedName) return null;
 
                 try {
@@ -1521,7 +1657,9 @@ if (assignments.length === 0) {
         verificationCount: 0,
         verificationGoal: 0,
         performanceChartData: [], 
-        dateRangeType: 'daily'
+        dateRangeType: 'daily',
+        pieChartData: [],
+        radarChartData: []
     };
 }
 
@@ -1705,7 +1843,7 @@ console.log(`📋 Employee Info - Name: ${selectedName}, Dept: ${primaryAssignme
                         });
                     }
 
-                    // Calculate goals month-by-month for the selected date range
+    // Calculate goals month-by-month for the selected date range
 let collectionGoal = 0;
 let productionGoal = 0;
 let appointmentGoal = 0;
@@ -1923,7 +2061,7 @@ while (currentDate <= endMonth) {
                         });
                     });
 
-                    // Calculate percentages relative to state
+    // Calculate percentages relative to state
                     const collectionPercentage = stateCollectionTotal > 0 ? (totalCollectionAmount / stateCollectionTotal) * 100 : 0;
                     const productionPercentage = stateProductionTotal > 0 ? (totalProductionAmount / stateProductionTotal) * 100 : 0;
                     const appointmentPercentage = stateAppointmentTotal > 0 ? (totalCompletedAppointments / stateAppointmentTotal) * 100 : 0;
@@ -1956,7 +2094,156 @@ while (currentDate <= endMonth) {
                         overallPerformance = Math.min(100, verificationPerf);
                     }
 
-                    // Performance chart data generation
+                    // NEW: Prepare Pie Chart Data
+                    let pieChartData = [];
+                    if (userDepartment === 'AR Department') {
+                        const stateTotalMinusUser = stateCollectionTotal - totalCollectionAmount;
+                        const allDeptTotal = configData.employeeCodes.reduce((sum, empCode) => {
+                            const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+                            if (empAssignments.length > 0 && empAssignments[0].department === 'AR Department') {
+                                let empData = data.filter(row => normalizeEmployeeName(row.name) === empCode);
+                                let empInsPmt = insPmtData.filter(row => normalizeEmployeeName(row.name) === empCode);
+                                
+                                if (startDate) {
+                                    const startDateObj = new Date(startDate);
+                                    empData = empData.filter(row => parseDate(row.date) >= startDateObj);
+                                    empInsPmt = empInsPmt.filter(row => parseDate(row.date) >= startDateObj);
+                                }
+                                if (endDate) {
+                                    const endDateObj = new Date(endDate);
+                                    empData = empData.filter(row => parseDate(row.date) <= endDateObj);
+                                    empInsPmt = empInsPmt.filter(row => parseDate(row.date) <= endDateObj);
+                                }
+                                
+                                let empCollection = 0;
+                                empData.forEach(row => {
+                                    if (row.task.trim().toLowerCase() === 'total balance collected') {
+                                        empCollection += parseNumericValue(row.collectionAmount);
+                                    }
+                                });
+                                empInsPmt.forEach(row => {
+                                    empCollection += parseNumericValue(row.amount);
+                                });
+                                return sum + empCollection;
+                            }
+                            return sum;
+                        }, 0);
+                        
+                        pieChartData = [
+                            { label: 'You', value: totalCollectionAmount },
+                            { label: 'Rest of State', value: Math.max(0, stateTotalMinusUser) },
+                            { label: 'All AR Dept', value: Math.max(0, allDeptTotal - totalCollectionAmount) }
+                        ];
+                    } else if (userDepartment === 'Outbound Department') {
+                        const stateTotalMinusUser = stateProductionTotal - totalProductionAmount;
+                        const allDeptTotal = configData.employeeCodes.reduce((sum, empCode) => {
+                            const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+                            if (empAssignments.length > 0 && empAssignments[0].department === 'Outbound Department') {
+                                let empProduction = productionData.filter(row => normalizeEmployeeName(row.name) === empCode);
+                                
+                                if (startDate) {
+                                    const startDateObj = new Date(startDate);
+                                    empProduction = empProduction.filter(row => parseDate(row.date) >= startDateObj);
+                                }
+                                if (endDate) {
+                                    const endDateObj = new Date(endDate);
+                                    empProduction = empProduction.filter(row => parseDate(row.date) <= endDateObj);
+                                }
+                                
+                                return sum + empProduction.reduce((s, row) => s + parseNumericValue(row.amount), 0);
+                            }
+                            return sum;
+                        }, 0);
+                        
+                        pieChartData = [
+                            { label: 'You', value: totalProductionAmount },
+                            { label: 'Rest of State', value: Math.max(0, stateTotalMinusUser) },
+                            { label: 'All Outbound Dept', value: Math.max(0, allDeptTotal - totalProductionAmount) }
+                        ];
+                    } else if (userDepartment === 'Verification Department') {
+                        const stateTotalMinusUser = stateVerificationTotal - userVerificationCount;
+                        const allDeptTotal = configData.employeeCodes.reduce((sum, empCode) => {
+                            const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+                            if (empAssignments.length > 0 && empAssignments[0].department === 'Verification Department') {
+                                let empData = data.filter(row => normalizeEmployeeName(row.name) === empCode);
+                                
+                                if (startDate) {
+                                    const startDateObj = new Date(startDate);
+                                    empData = empData.filter(row => parseDate(row.date) >= startDateObj);
+                                }
+                                if (endDate) {
+                                    const endDateObj = new Date(endDate);
+                                    empData = empData.filter(row => parseDate(row.date) <= endDateObj);
+                                }
+                                
+                                let empVerifications = 0;
+                                empData.forEach(row => {
+                                    const standardTaskName = findTaskName(row.task.trim());
+                                    if (standardTaskName === 'Verification' || 
+                                        standardTaskName === 'Verification (M)' || 
+                                        standardTaskName === 'Verification (P)') {
+                                        empVerifications += parseNumericValue(row.amount);
+                                    }
+                                });
+                                return sum + empVerifications;
+                            }
+                            return sum;
+                        }, 0);
+                        
+                        pieChartData = [
+                            { label: 'You', value: userVerificationCount },
+                            { label: 'Rest of State', value: Math.max(0, stateTotalMinusUser) },
+                            { label: 'All Verification Dept', value: Math.max(0, allDeptTotal - userVerificationCount) }
+                        ];
+                    }
+
+                    // NEW: Prepare Radar Chart Data based on department
+                    let radarChartData = [];
+                    if (userDepartment === 'Verification Department') {
+                        const verificationM = taskCounts['Verification (M)'] || 0;
+                        const verificationP = taskCounts['Verification (P)'] || 0;
+                        const otherTasks = totalTasks - verificationM - verificationP;
+                        radarChartData = [
+                            { label: 'Verification (M)', value: verificationM },
+                            { label: 'Verification (P)', value: verificationP },
+                            { label: 'Other Tasks', value: Math.max(0, otherTasks) }
+                        ];
+                    } else if (userDepartment === 'Outbound Department') {
+                        const inboundCall = taskCounts['Inbound Call'] || 0;
+                        const outboundCall = taskCounts['Outbound Call'] || 0;
+                        const confirmationCalls = (taskCounts['20MIN Confirmation Call'] || 0) + 
+                                                  (taskCounts['24HR Confirmation Call'] || 0) + 
+                                                  (taskCounts['48HR Confirmation Call'] || 0);
+                        const otherTasks = totalTasks - inboundCall - outboundCall - confirmationCalls;
+                        radarChartData = [
+                            { label: 'Inbound Call', value: inboundCall },
+                            { label: 'Outbound Call', value: outboundCall },
+                            { label: 'Confirmation Calls', value: confirmationCalls },
+                            { label: 'Other Tasks', value: Math.max(0, otherTasks) }
+                        ];
+                    } else if (userDepartment === 'AR Department') {
+                        // AR Department task categories
+                        const billerTasks = (taskCounts['Batching Claims'] || 0) + 
+                                           (taskCounts['Sending Private Claims'] || 0) + 
+                                           (taskCounts['Sending Medicaid Claims'] || 0) +
+                                           (taskCounts['Billing Call'] || 0) +
+                                           (taskCounts['Outstanding Claims'] || 0);
+                        const posterTasks = (taskCounts['Entering Payments'] || 0) + 
+                                           (taskCounts['Entering EOBs'] || 0) +
+                                           (taskCounts['Processing CC Payments'] || 0);
+                        const doctorPayroll = taskCounts['Doctor Payroll'] || 0;
+                        const credentialing = taskCounts['Credentialing'] || 0;
+                        const otherTasks = totalTasks - billerTasks - posterTasks - doctorPayroll - credentialing;
+                        radarChartData = [
+                            { label: 'Biller Tasks', value: billerTasks },
+                            { label: 'Poster Tasks', value: posterTasks },
+                            { label: 'Doctor Payroll', value: doctorPayroll },
+                            { label: 'Credentialing', value: credentialing },
+                            { label: 'Other Tasks', value: Math.max(0, otherTasks) }
+                        ];
+                    }
+
+    // Performance chart data generation
                     let performanceChartData = [];
                     let dateRangeType = 'daily';
 
@@ -2004,181 +2291,182 @@ while (currentDate <= endMonth) {
                                             dayCollection += parseNumericValue(row.collectionAmount);
                                         }
                                     });
-                                    const dayInsPmtData = filteredInsPmt.filter(row => {const rowDate = parseDate(row.date);
-                                    return rowDate && rowDate.toDateString() === d.toDateString();
-                                });
-                                dayInsPmtData.forEach(row => {
-                                    dayCollection += parseNumericValue(row.amount);
-                                });
-                                const avgCollGoal = collectionGoal / numberOfDays;
-                                dayPerformance = avgCollGoal > 0 ? Math.min(100, (dayCollection / avgCollGoal) * 100) : 0;
-                            } else if (userDepartment === 'Verification Department') {
-                                let dayVerifications = 0;
-                                dayData.forEach(row => {
-                                    const standardTaskName = findTaskName(row.task.trim());
-                                    if (standardTaskName === 'Verification' || 
-                                        standardTaskName === 'Verification (M)' || 
-                                        standardTaskName === 'Verification (P)') {
-                                        dayVerifications += parseNumericValue(row.amount);
-                                    }
-                                });
-                                const avgVerGoal = verificationGoal / numberOfDays;
-                                dayPerformance = avgVerGoal > 0 ? Math.min(100, (dayVerifications / avgVerGoal) * 100) : 0;
+                                    const dayInsPmtData = filteredInsPmt.filter(row => {
+                                        const rowDate = parseDate(row.date);
+                                        return rowDate && rowDate.toDateString() === d.toDateString();
+                                    });
+                                    dayInsPmtData.forEach(row => {
+                                        dayCollection += parseNumericValue(row.amount);
+                                    });
+                                    const avgCollGoal = collectionGoal / numberOfDays;
+                                    dayPerformance = avgCollGoal > 0 ? Math.min(100, (dayCollection / avgCollGoal) * 100) : 0;
+                                } else if (userDepartment === 'Verification Department') {
+                                    let dayVerifications = 0;
+                                    dayData.forEach(row => {
+                                        const standardTaskName = findTaskName(row.task.trim());
+                                        if (standardTaskName === 'Verification' || 
+                                            standardTaskName === 'Verification (M)' || 
+                                            standardTaskName === 'Verification (P)') {
+                                            dayVerifications += parseNumericValue(row.amount);
+                                        }
+                                    });
+                                    const avgVerGoal = verificationGoal / numberOfDays;
+                                    dayPerformance = avgVerGoal > 0 ? Math.min(100, (dayVerifications / avgVerGoal) * 100) : 0;
+                                }
+                                performanceChartData.push({ label: `${d.getMonth() + 1}/${d.getDate()}`, value: dayPerformance });
                             }
-                            performanceChartData.push({ label: `${d.getMonth() + 1}/${d.getDate()}`, value: dayPerformance });
-                        }
-                    } else if (daysDiff <= 30) {
-                        dateRangeType = 'weekly';
-                        const weeks = [];
-                        let weekStart = new Date(start);
-                        weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
-                        while (weekStart <= end) {
-                            const weekEnd = new Date(weekStart);
-                            weekEnd.setDate(weekEnd.getDate() + 6);
-                            weeks.push({ start: new Date(weekStart), end: new Date(Math.min(weekEnd, end)) });
-                            weekStart.setDate(weekStart.getDate() + 7);
-                        }
-                        weeks.forEach((week, index) => {
-                            const weekData = filtered.filter(row => {
-                                const rowDate = parseDate(row.date);
-                                return rowDate && rowDate >= week.start && rowDate <= week.end;
-                            });
-                            const weekDays = countWorkingDays(week.start, week.end);
-                            let weekPerformance = 0;
-                            
-                            if (userDepartment === 'Outbound Department') {
-                                let weekAppointments = 0, weekCalls = 0, weekProduction = 0;
-                                weekData.forEach(row => {
-                                    const standardTaskName = findTaskName(row.task.trim());
-                                    const amountValue = parseNumericValue(row.amount);
-                                    if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') weekAppointments += amountValue;
-                                    if (standardTaskName === 'Outbound Call') weekCalls += amountValue;
-                                });
-                                const weekProductionData = productionData.filter(row => {
-                                    const normalized = normalizeEmployeeName(row.name);
-                                    const rowDate = parseDate(row.date);
-                                    return normalized === selectedName && rowDate && rowDate >= week.start && rowDate <= week.end;
-                                });
-                                weekProduction = weekProductionData.reduce((sum, row) => sum + parseNumericValue(row.amount), 0);
-                                
-                                const weekAppGoal = (appointmentGoal / numberOfDays) * weekDays;
-                                const weekCallGoal = (callGoal / numberOfDays) * weekDays;
-                                const weekProdGoal = (productionGoal / numberOfDays) * weekDays;
-                                const appointmentPerf = weekAppGoal > 0 ? (weekAppointments / weekAppGoal) * 100 : 0;
-                                const callPerf = weekCallGoal > 0 ? (weekCalls / weekCallGoal) * 100 : 0;
-                                const productionPerf = weekProdGoal > 0 ? (weekProduction / weekProdGoal) * 100 : 0;
-                                weekPerformance = Math.min(100, ((appointmentPerf + callPerf + productionPerf) / 3));
-                            } else if (userDepartment === 'AR Department') {
-                                let weekCollection = 0;
-                                weekData.forEach(row => {
-                                    const taskLower = row.task.trim().toLowerCase();
-                                    if (taskLower === 'total balance collected') {
-                                        weekCollection += parseNumericValue(row.collectionAmount);
-                                    }
-                                });
-                                const weekInsPmtData = filteredInsPmt.filter(row => {
+                        } else if (daysDiff <= 30) {
+                            dateRangeType = 'weekly';
+                            const weeks = [];
+                            let weekStart = new Date(start);
+                            weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+                            while (weekStart <= end) {
+                                const weekEnd = new Date(weekStart);
+                                weekEnd.setDate(weekEnd.getDate() + 6);
+                                weeks.push({ start: new Date(weekStart), end: new Date(Math.min(weekEnd, end)) });
+                                weekStart.setDate(weekStart.getDate() + 7);
+                            }
+                            weeks.forEach((week, index) => {
+                                const weekData = filtered.filter(row => {
                                     const rowDate = parseDate(row.date);
                                     return rowDate && rowDate >= week.start && rowDate <= week.end;
                                 });
-                                weekInsPmtData.forEach(row => {
-                                    weekCollection += parseNumericValue(row.amount);
-                                });
-                                const weekCollGoal = (collectionGoal / numberOfDays) * weekDays;
-                                weekPerformance = weekCollGoal > 0 ? Math.min(100, (weekCollection / weekCollGoal) * 100) : 0;
-                            } else if (userDepartment === 'Verification Department') {
-                                let weekVerifications = 0;
-                                weekData.forEach(row => {
-                                    const standardTaskName = findTaskName(row.task.trim());
-                                    if (standardTaskName === 'Verification' || 
-                                        standardTaskName === 'Verification (M)' || 
-                                        standardTaskName === 'Verification (P)') {
-                                        weekVerifications += parseNumericValue(row.amount);
-                                    }
-                                });
-                                const weekVerGoal = (verificationGoal / numberOfDays) * weekDays;
-                                weekPerformance = weekVerGoal > 0 ? Math.min(100, (weekVerifications / weekVerGoal) * 100) : 0;
-                            }
-                            performanceChartData.push({ label: `Week ${index + 1}`, value: weekPerformance });
-                        });
-                    } else {
-                        dateRangeType = 'monthly';
-                        const months = [];
-                        let monthStart = new Date(start.getFullYear(), start.getMonth(), 1);
-                        while (monthStart <= end) {
-                            const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
-                            months.push({
-                                start: new Date(Math.max(monthStart, start)),
-                                end: new Date(Math.min(monthEnd, end)),
-                                label: monthStart.toLocaleString('default', { month: 'short', year: 'numeric' })
-                            });
-                            monthStart.setMonth(monthStart.getMonth() + 1);
-                        }
-                        months.forEach((month) => {
-                            const monthData = filtered.filter(row => {
-                                const rowDate = parseDate(row.date);
-                                return rowDate && rowDate >= month.start && rowDate <= month.end;
-                            });
-                            const monthDays = countWorkingDays(month.start, month.end);
-                            let monthPerformance = 0;
-                            
-                            if (userDepartment === 'Outbound Department') {
-                                let monthAppointments = 0, monthCalls = 0, monthProduction = 0;
-                                monthData.forEach(row => {
-                                    const standardTaskName = findTaskName(row.task.trim());
-                                    const amountValue = parseNumericValue(row.amount);
-                                    if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') monthAppointments += amountValue;
-                                    if (standardTaskName === 'Outbound Call') monthCalls += amountValue;
-                                });
-                                const monthProductionData = productionData.filter(row => {
-                                    const normalized = normalizeEmployeeName(row.name);
-                                    const rowDate = parseDate(row.date);
-                                    return normalized === selectedName && rowDate && rowDate >= month.start && rowDate <= month.end;
-                                });
-                                monthProduction = monthProductionData.reduce((sum, row) => sum + parseNumericValue(row.amount), 0);
+                                const weekDays = countWorkingDays(week.start, week.end);
+                                let weekPerformance = 0;
                                 
-                                const monthAppGoal = (appointmentGoal / numberOfDays) * monthDays;
-                                const monthCallGoal = (callGoal / numberOfDays) * monthDays;
-                                const monthProdGoal = (productionGoal / numberOfDays) * monthDays;
-                                const appointmentPerf = monthAppGoal > 0 ? (monthAppointments / monthAppGoal) * 100 : 0;
-                                const callPerf = monthCallGoal > 0 ? (monthCalls / monthCallGoal) * 100 : 0;
-                                const productionPerf = monthProdGoal > 0 ? (monthProduction / monthProdGoal) * 100 : 0;
-                                monthPerformance = Math.min(100, ((appointmentPerf + callPerf + productionPerf) / 3));
-                            } else if (userDepartment === 'AR Department') {
-                                let monthCollection = 0;
-                                monthData.forEach(row => {
-                                    const taskLower = row.task.trim().toLowerCase();
-                                    if (taskLower === 'total balance collected') {
-                                        monthCollection += parseNumericValue(row.collectionAmount);
-                                    }
+                                if (userDepartment === 'Outbound Department') {
+                                    let weekAppointments = 0, weekCalls = 0, weekProduction = 0;
+                                    weekData.forEach(row => {
+                                        const standardTaskName = findTaskName(row.task.trim());
+                                        const amountValue = parseNumericValue(row.amount);
+                                        if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') weekAppointments += amountValue;
+                                        if (standardTaskName === 'Outbound Call') weekCalls += amountValue;
+                                    });
+                                    const weekProductionData = productionData.filter(row => {
+                                        const normalized = normalizeEmployeeName(row.name);
+                                        const rowDate = parseDate(row.date);
+                                        return normalized === selectedName && rowDate && rowDate >= week.start && rowDate <= week.end;
+                                    });
+                                    weekProduction = weekProductionData.reduce((sum, row) => sum + parseNumericValue(row.amount), 0);
+                                    
+                                    const weekAppGoal = (appointmentGoal / numberOfDays) * weekDays;
+                                    const weekCallGoal = (callGoal / numberOfDays) * weekDays;
+                                    const weekProdGoal = (productionGoal / numberOfDays) * weekDays;
+                                    const appointmentPerf = weekAppGoal > 0 ? (weekAppointments / weekAppGoal) * 100 : 0;
+                                    const callPerf = weekCallGoal > 0 ? (weekCalls / weekCallGoal) * 100 : 0;
+                                    const productionPerf = weekProdGoal > 0 ? (weekProduction / weekProdGoal) * 100 : 0;
+                                    weekPerformance = Math.min(100, ((appointmentPerf + callPerf + productionPerf) / 3));
+                                } else if (userDepartment === 'AR Department') {
+                                    let weekCollection = 0;
+                                    weekData.forEach(row => {
+                                        const taskLower = row.task.trim().toLowerCase();
+                                        if (taskLower === 'total balance collected') {
+                                            weekCollection += parseNumericValue(row.collectionAmount);
+                                        }
+                                    });
+                                    const weekInsPmtData = filteredInsPmt.filter(row => {
+                                        const rowDate = parseDate(row.date);
+                                        return rowDate && rowDate >= week.start && rowDate <= week.end;
+                                    });
+                                    weekInsPmtData.forEach(row => {
+                                        weekCollection += parseNumericValue(row.amount);
+                                    });
+                                    const weekCollGoal = (collectionGoal / numberOfDays) * weekDays;
+                                    weekPerformance = weekCollGoal > 0 ? Math.min(100, (weekCollection / weekCollGoal) * 100) : 0;
+                                } else if (userDepartment === 'Verification Department') {
+                                    let weekVerifications = 0;
+                                    weekData.forEach(row => {
+                                        const standardTaskName = findTaskName(row.task.trim());
+                                        if (standardTaskName === 'Verification' || 
+                                            standardTaskName === 'Verification (M)' || 
+                                            standardTaskName === 'Verification (P)') {
+                                            weekVerifications += parseNumericValue(row.amount);
+                                        }
+                                    });
+                                    const weekVerGoal = (verificationGoal / numberOfDays) * weekDays;
+                                    weekPerformance = weekVerGoal > 0 ? Math.min(100, (weekVerifications / weekVerGoal) * 100) : 0;
+                                }
+                                performanceChartData.push({ label: `Week ${index + 1}`, value: weekPerformance });
+                            });
+                        } else {
+                            dateRangeType = 'monthly';
+                            const months = [];
+                            let monthStart = new Date(start.getFullYear(), start.getMonth(), 1);
+                            while (monthStart <= end) {
+                                const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+                                months.push({
+                                    start: new Date(Math.max(monthStart, start)),
+                                    end: new Date(Math.min(monthEnd, end)),
+                                    label: monthStart.toLocaleString('default', { month: 'short', year: 'numeric' })
                                 });
-                                const monthInsPmtData = filteredInsPmt.filter(row => {
+                                monthStart.setMonth(monthStart.getMonth() + 1);
+                            }
+                            months.forEach((month) => {
+                                const monthData = filtered.filter(row => {
                                     const rowDate = parseDate(row.date);
                                     return rowDate && rowDate >= month.start && rowDate <= month.end;
                                 });
-                                monthInsPmtData.forEach(row => {
-                                    monthCollection += parseNumericValue(row.amount);
-                                });
-                                const monthCollGoal = (collectionGoal / numberOfDays) * monthDays;
-                                monthPerformance = monthCollGoal > 0 ? Math.min(100, (monthCollection / monthCollGoal) * 100) : 0;
-                            } else if (userDepartment === 'Verification Department') {
-                                let monthVerifications = 0;
-                                monthData.forEach(row => {
-                                    const standardTaskName = findTaskName(row.task.trim());
-                                    if (standardTaskName === 'Verification' || 
-                                        standardTaskName === 'Verification (M)' || 
-                                        standardTaskName === 'Verification (P)') {
-                                        monthVerifications += parseNumericValue(row.amount);
-                                    }
-                                });
-                                const monthVerGoal = (verificationGoal / numberOfDays) * monthDays;
-                                monthPerformance = monthVerGoal > 0 ? Math.min(100, (monthVerifications / monthVerGoal) * 100) : 0;
-                            }
-                            performanceChartData.push({ label: month.label, value: monthPerformance });
-                        });
+                                const monthDays = countWorkingDays(month.start, month.end);
+                                let monthPerformance = 0;
+                                
+                                if (userDepartment === 'Outbound Department') {
+                                    let monthAppointments = 0, monthCalls = 0, monthProduction = 0;
+                                    monthData.forEach(row => {
+                                        const standardTaskName = findTaskName(row.task.trim());
+                                        const amountValue = parseNumericValue(row.amount);
+                                        if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt') monthAppointments += amountValue;
+                                        if (standardTaskName === 'Outbound Call') monthCalls += amountValue;
+                                    });
+                                    const monthProductionData = productionData.filter(row => {
+                                        const normalized = normalizeEmployeeName(row.name);
+                                        const rowDate = parseDate(row.date);
+                                        return normalized === selectedName && rowDate && rowDate >= month.start && rowDate <= month.end;
+                                    });
+                                    monthProduction = monthProductionData.reduce((sum, row) => sum + parseNumericValue(row.amount), 0);
+                                    
+                                    const monthAppGoal = (appointmentGoal / numberOfDays) * monthDays;
+                                    const monthCallGoal = (callGoal / numberOfDays) * monthDays;
+                                    const monthProdGoal = (productionGoal / numberOfDays) * monthDays;
+                                    const appointmentPerf = monthAppGoal > 0 ? (monthAppointments / monthAppGoal) * 100 : 0;
+                                    const callPerf = monthCallGoal > 0 ? (monthCalls / monthCallGoal) * 100 : 0;
+                                    const productionPerf = monthProdGoal > 0 ? (monthProduction / monthProdGoal) * 100 : 0;
+                                    monthPerformance = Math.min(100, ((appointmentPerf + callPerf + productionPerf) / 3));
+                                } else if (userDepartment === 'AR Department') {
+                                    let monthCollection = 0;
+                                    monthData.forEach(row => {
+                                        const taskLower = row.task.trim().toLowerCase();
+                                        if (taskLower === 'total balance collected') {
+                                            monthCollection += parseNumericValue(row.collectionAmount);
+                                        }
+                                    });
+                                    const monthInsPmtData = filteredInsPmt.filter(row => {
+                                        const rowDate = parseDate(row.date);
+                                        return rowDate && rowDate >= month.start && rowDate <= month.end;
+                                    });
+                                    monthInsPmtData.forEach(row => {
+                                        monthCollection += parseNumericValue(row.amount);
+                                    });
+                                    const monthCollGoal = (collectionGoal / numberOfDays) * monthDays;
+                                    monthPerformance = monthCollGoal > 0 ? Math.min(100, (monthCollection / monthCollGoal) * 100) : 0;
+                                } else if (userDepartment === 'Verification Department') {
+                                    let monthVerifications = 0;
+                                    monthData.forEach(row => {
+                                        const standardTaskName = findTaskName(row.task.trim());
+                                        if (standardTaskName === 'Verification' || 
+                                            standardTaskName === 'Verification (M)' || 
+                                            standardTaskName === 'Verification (P)') {
+                                            monthVerifications += parseNumericValue(row.amount);
+                                        }
+                                    });
+                                    const monthVerGoal = (verificationGoal / numberOfDays) * monthDays;
+                                    monthPerformance = monthVerGoal > 0 ? Math.min(100, (monthVerifications / monthVerGoal) * 100) : 0;
+                                }
+                                performanceChartData.push({ label: month.label, value: monthPerformance });
+                            });
+                        }
                     }
-                }
 
-                return {
+    return {
                     taskCounts: sortedTasks, 
                     unlistedTasks: sortedUnlistedTasks, 
                     taskPercentages,
@@ -2204,7 +2492,9 @@ while (currentDate <= endMonth) {
                     verificationCount: userVerificationCount,
                     verificationGoal: verificationGoal,
                     performanceChartData, 
-                    dateRangeType
+                    dateRangeType,
+                    pieChartData,
+                    radarChartData
                 };
             } catch (error) {
                 console.error('Error in calculatePerformance:', error);
@@ -2251,6 +2541,7 @@ while (currentDate <= endMonth) {
                 console.error('Failed to refresh config:', error);
             }
         };
+
     return (
                 <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
                     <div className="max-w-7xl mx-auto">
@@ -2413,7 +2704,7 @@ while (currentDate <= endMonth) {
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
                                         <div className="flex items-center gap-3 mb-6">
                                             <div className="bg-gradient-to-br from-blue-500 to-cyan-600 p-2.5 rounded-lg shadow-lg shadow-blue-500/50">
@@ -2487,6 +2778,53 @@ while (currentDate <= endMonth) {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* NEW: Pie Chart and Radar Chart Section */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {performance.pieChartData && performance.pieChartData.length > 0 && (
+                                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-2.5 rounded-lg shadow-lg shadow-cyan-500/50">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                                        <circle cx="12" cy="12" r="10"/>
+                                                        <line x1="12" y1="2" x2="12" y2="12"/>
+                                                        <line x1="12" y1="12" x2="16" y2="8"/>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-white">
+                                                        {performance.department === 'AR Department' ? 'Collection Distribution' : 
+                                                         performance.department === 'Outbound Department' ? 'Production Distribution' : 
+                                                         'Verification Distribution'}
+                                                    </h3>
+                                                    <p className="text-slate-400 text-sm">Your contribution vs others</p>
+                                                </div>
+                                            </div>
+                                            <PieChart data={performance.pieChartData} />
+                                        </div>
+                                    )}
+
+                                    {performance.radarChartData && performance.radarChartData.length > 0 && (
+                                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-2.5 rounded-lg shadow-lg shadow-purple-500/50">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-white">Task Breakdown</h3>
+                                                    <p className="text-slate-400 text-sm">
+                                                        {performance.department === 'AR Department' ? 'AR Task Categories' : 
+                                                         performance.department === 'Outbound Department' ? 'Call Types Distribution' : 
+                                                         'Verification Types'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <RadarChart data={performance.radarChartData} />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
 
@@ -2505,7 +2843,7 @@ while (currentDate <= endMonth) {
                         )}
                     </div>
 
-                    {showPasswordModal && (
+    {showPasswordModal && (
                         <PasswordModal 
                             onClose={() => setShowPasswordModal(false)}
                             onSuccess={handlePasswordSuccess}
@@ -2535,6 +2873,10 @@ while (currentDate <= endMonth) {
 
                     {adminView === 'add-employee' && (
                         <AddEmployee onClose={handleCloseAdminView} />
+                    )}
+
+                    {adminView === 'add-office' && (
+                        <AddOffice onClose={handleCloseAdminView} />
                     )}
 
                     {adminView === 'delete-employee' && (
@@ -2577,13 +2919,3 @@ while (currentDate <= endMonth) {
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
