@@ -540,6 +540,10 @@
                 if (!chartRef.current || !data || data.length === 0) return;
                 if (chartInstance.current) chartInstance.current.destroy();
 
+                // Calculate max value and set suggested max
+                const maxValue = Math.max(...data.map(d => d.value));
+                const suggestedMax = maxValue > 100 ? Math.ceil(maxValue * 1.2 / 100) * 100 : undefined;
+
                 const ctx = chartRef.current.getContext('2d');
                 chartInstance.current = new Chart(ctx, {
                     type: 'radar',
@@ -563,9 +567,11 @@
                         scales: {
                             r: {
                                 beginAtZero: true,
+                                suggestedMax: suggestedMax,
                                 ticks: { 
                                     color: '#94a3b8',
-                                    backdropColor: 'transparent'
+                                    backdropColor: 'transparent',
+                                    stepSize: suggestedMax ? Math.ceil(suggestedMax / 5) : undefined
                                 },
                                 grid: { color: 'rgba(148, 163, 184, 0.2)' },
                                 pointLabels: { 
@@ -584,7 +590,7 @@
                                 borderWidth: 1,
                                 padding: 12,
                                 callbacks: {
-                                    label: (context) => `${context.label}: ${context.parsed.r.toFixed(0)} tasks`
+                                    label: (context) => `${context.label}: ${context.parsed.r.toFixed(0)}`
                                 }
                             }
                         }
@@ -1450,6 +1456,10 @@
             const [uniqueNames, setUniqueNames] = useState([]);
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState('');
+            
+            // Chart options state
+            const [pieChartScope, setPieChartScope] = useState('state'); // 'state' or 'overall'
+            const [outboundMetric, setOutboundMetric] = useState('production'); // 'production', 'calls', 'appointments'
 
             const fetchDataFromSheet = async () => {
                 setLoading(true);
@@ -2094,7 +2104,7 @@ while (currentDate <= endMonth) {
                         overallPerformance = Math.min(100, verificationPerf);
                     }
 
-                    // NEW: Prepare Pie Chart Data
+                    // NEW: Prepare Pie Chart Data with scope and metric options
                     let pieChartData = [];
                     if (userDepartment === 'AR Department') {
                         const stateTotalMinusUser = stateCollectionTotal - totalCollectionAmount;
@@ -2129,37 +2139,130 @@ while (currentDate <= endMonth) {
                             return sum;
                         }, 0);
                         
-                        pieChartData = [
-                            { label: 'You', value: totalCollectionAmount },
-                            { label: 'Rest of State', value: Math.max(0, stateTotalMinusUser) },
-                            { label: 'All AR Dept', value: Math.max(0, allDeptTotal - totalCollectionAmount) }
-                        ];
+                        if (pieChartScope === 'state') {
+                            pieChartData = [
+                                { label: 'You', value: totalCollectionAmount },
+                                { label: 'Rest of State', value: Math.max(0, stateTotalMinusUser) }
+                            ];
+                        } else {
+                            pieChartData = [
+                                { label: 'You', value: totalCollectionAmount },
+                                { label: 'All AR Dept', value: Math.max(0, allDeptTotal - totalCollectionAmount) }
+                            ];
+                        }
                     } else if (userDepartment === 'Outbound Department') {
-                        const stateTotalMinusUser = stateProductionTotal - totalProductionAmount;
-                        const allDeptTotal = configData.employeeCodes.reduce((sum, empCode) => {
-                            const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
-                            if (empAssignments.length > 0 && empAssignments[0].department === 'Outbound Department') {
-                                let empProduction = productionData.filter(row => normalizeEmployeeName(row.name) === empCode);
-                                
-                                if (startDate) {
-                                    const startDateObj = new Date(startDate);
-                                    empProduction = empProduction.filter(row => parseDate(row.date) >= startDateObj);
-                                }
-                                if (endDate) {
-                                    const endDateObj = new Date(endDate);
-                                    empProduction = empProduction.filter(row => parseDate(row.date) <= endDateObj);
-                                }
-                                
-                                return sum + empProduction.reduce((s, row) => s + parseNumericValue(row.amount), 0);
-                            }
-                            return sum;
-                        }, 0);
+                        // Calculate totals for all metrics
+                        let userMetricValue = 0, stateMetricTotal = 0, allDeptMetricTotal = 0;
                         
-                        pieChartData = [
-                            { label: 'You', value: totalProductionAmount },
-                            { label: 'Rest of State', value: Math.max(0, stateTotalMinusUser) },
-                            { label: 'All Outbound Dept', value: Math.max(0, allDeptTotal - totalProductionAmount) }
-                        ];
+                        if (outboundMetric === 'production') {
+                            userMetricValue = totalProductionAmount;
+                            stateMetricTotal = stateProductionTotal;
+                            
+                            allDeptMetricTotal = configData.employeeCodes.reduce((sum, empCode) => {
+                                const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+                                if (empAssignments.length > 0 && empAssignments[0].department === 'Outbound Department') {
+                                    let empProduction = productionData.filter(row => normalizeEmployeeName(row.name) === empCode);
+                                    if (startDate) {
+                                        const startDateObj = new Date(startDate);
+                                        empProduction = empProduction.filter(row => parseDate(row.date) >= startDateObj);
+                                    }
+                                    if (endDate) {
+                                        const endDateObj = new Date(endDate);
+                                        empProduction = empProduction.filter(row => parseDate(row.date) <= endDateObj);
+                                    }
+                                    return sum + empProduction.reduce((s, row) => s + parseNumericValue(row.amount), 0);
+                                }
+                                return sum;
+                            }, 0);
+                        } else if (outboundMetric === 'appointments') {
+                            userMetricValue = totalCompletedAppointments;
+                            stateMetricTotal = stateAppointmentTotal;
+                            
+                            allDeptMetricTotal = configData.employeeCodes.reduce((sum, empCode) => {
+                                const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+                                if (empAssignments.length > 0 && empAssignments[0].department === 'Outbound Department') {
+                                    let empAppointments = appointmentData.filter(row => normalizeEmployeeName(row.name) === empCode);
+                                    if (startDate) {
+                                        const startDateObj = new Date(startDate);
+                                        empAppointments = empAppointments.filter(row => parseDate(row.date) >= startDateObj);
+                                    }
+                                    if (endDate) {
+                                        const endDateObj = new Date(endDate);
+                                        empAppointments = empAppointments.filter(row => parseDate(row.date) <= endDateObj);
+                                    }
+                                    return sum + empAppointments.reduce((s, row) => s + (row.count || 0), 0);
+                                }
+                                return sum;
+                            }, 0);
+                        } else if (outboundMetric === 'calls') {
+                            userMetricValue = totalCalls;
+                            
+                            // Calculate state calls total
+                            const employeesInState = configData.employeeCodes.filter(empCode => {
+                                const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+                                return empAssignments.length > 0 && empAssignments[0].state === userState;
+                            });
+                            
+                            stateMetricTotal = employeesInState.reduce((sum, empCode) => {
+                                const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+                                if (empAssignments[0]?.department === 'Outbound Department') {
+                                    let empData = data.filter(row => normalizeEmployeeName(row.name) === empCode);
+                                    if (startDate) {
+                                        const startDateObj = new Date(startDate);
+                                        empData = empData.filter(row => parseDate(row.date) >= startDateObj);
+                                    }
+                                    if (endDate) {
+                                        const endDateObj = new Date(endDate);
+                                        empData = empData.filter(row => parseDate(row.date) <= endDateObj);
+                                    }
+                                    let empCalls = 0;
+                                    empData.forEach(row => {
+                                        const standardTaskName = findTaskName(row.task.trim());
+                                        if (standardTaskName === 'Outbound Call' || standardTaskName === 'Inbound Call') {
+                                            empCalls += parseNumericValue(row.amount) || 1;
+                                        }
+                                    });
+                                    return sum + empCalls;
+                                }
+                                return sum;
+                            }, 0);
+                            
+                            allDeptMetricTotal = configData.employeeCodes.reduce((sum, empCode) => {
+                                const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+                                if (empAssignments.length > 0 && empAssignments[0].department === 'Outbound Department') {
+                                    let empData = data.filter(row => normalizeEmployeeName(row.name) === empCode);
+                                    if (startDate) {
+                                        const startDateObj = new Date(startDate);
+                                        empData = empData.filter(row => parseDate(row.date) >= startDateObj);
+                                    }
+                                    if (endDate) {
+                                        const endDateObj = new Date(endDate);
+                                        empData = empData.filter(row => parseDate(row.date) <= endDateObj);
+                                    }
+                                    let empCalls = 0;
+                                    empData.forEach(row => {
+                                        const standardTaskName = findTaskName(row.task.trim());
+                                        if (standardTaskName === 'Outbound Call' || standardTaskName === 'Inbound Call') {
+                                            empCalls += parseNumericValue(row.amount) || 1;
+                                        }
+                                    });
+                                    return sum + empCalls;
+                                }
+                                return sum;
+                            }, 0);
+                        }
+                        
+                        if (pieChartScope === 'state') {
+                            pieChartData = [
+                                { label: 'You', value: userMetricValue },
+                                { label: 'Rest of State', value: Math.max(0, stateMetricTotal - userMetricValue) }
+                            ];
+                        } else {
+                            pieChartData = [
+                                { label: 'You', value: userMetricValue },
+                                { label: 'All Outbound Dept', value: Math.max(0, allDeptMetricTotal - userMetricValue) }
+                            ];
+                        }
                     } else if (userDepartment === 'Verification Department') {
                         const stateTotalMinusUser = stateVerificationTotal - userVerificationCount;
                         const allDeptTotal = configData.employeeCodes.reduce((sum, empCode) => {
@@ -2190,11 +2293,17 @@ while (currentDate <= endMonth) {
                             return sum;
                         }, 0);
                         
-                        pieChartData = [
-                            { label: 'You', value: userVerificationCount },
-                            { label: 'Rest of State', value: Math.max(0, stateTotalMinusUser) },
-                            { label: 'All Verification Dept', value: Math.max(0, allDeptTotal - userVerificationCount) }
-                        ];
+                        if (pieChartScope === 'state') {
+                            pieChartData = [
+                                { label: 'You', value: userVerificationCount },
+                                { label: 'Rest of State', value: Math.max(0, stateTotalMinusUser) }
+                            ];
+                        } else {
+                            pieChartData = [
+                                { label: 'You', value: userVerificationCount },
+                                { label: 'All Verification Dept', value: Math.max(0, allDeptTotal - userVerificationCount) }
+                            ];
+                        }
                     }
 
                     // NEW: Prepare Radar Chart Data based on department
@@ -2704,8 +2813,9 @@ while (currentDate <= endMonth) {
                                     )}
                                 </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
+                                {/* NEW: Pie Chart and Radar Chart Section */}
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div className="lg:col-span-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
                                         <div className="flex items-center gap-3 mb-6">
                                             <div className="bg-gradient-to-br from-blue-500 to-cyan-600 p-2.5 rounded-lg shadow-lg shadow-blue-500/50">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
@@ -2724,7 +2834,69 @@ while (currentDate <= endMonth) {
                                         <PerformanceChart performanceData={performance.performanceChartData} />
                                     </div>
 
-                                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
+                                    {performance.pieChartData && performance.pieChartData.length > 0 && (
+                                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-2.5 rounded-lg shadow-lg shadow-cyan-500/50">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                                                            <circle cx="12" cy="12" r="10"/>
+                                                            <line x1="12" y1="2" x2="12" y2="12"/>
+                                                            <line x1="12" y1="12" x2="16" y2="8"/>
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-lg font-bold text-white">Distribution</h3>
+                                                        <p className="text-slate-400 text-xs">Your contribution</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex gap-2 mb-4">
+                                                <button 
+                                                    onClick={() => setPieChartScope('state')}
+                                                    className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${pieChartScope === 'state' ? 'bg-cyan-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+                                                >
+                                                    State
+                                                </button>
+                                                <button 
+                                                    onClick={() => setPieChartScope('overall')}
+                                                    className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${pieChartScope === 'overall' ? 'bg-cyan-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+                                                >
+                                                    Overall
+                                                </button>
+                                            </div>
+                                            
+                                            {performance.department === 'Outbound Department' && (
+                                                <div className="flex gap-2 mb-4">
+                                                    <button 
+                                                        onClick={() => setOutboundMetric('production')}
+                                                        className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all ${outboundMetric === 'production' ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+                                                    >
+                                                        Production
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setOutboundMetric('calls')}
+                                                        className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all ${outboundMetric === 'calls' ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+                                                    >
+                                                        Calls
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setOutboundMetric('appointments')}
+                                                        className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all ${outboundMetric === 'appointments' ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+                                                    >
+                                                        Appts
+                                                    </button>
+                                                </div>
+                                            )}
+                                            
+                                            <PieChart data={performance.pieChartData} />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div className="lg:col-span-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
                                         <div className="flex items-center gap-3 mb-6">
                                             <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-2.5 rounded-lg shadow-lg shadow-purple-500/50">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
@@ -2740,7 +2912,7 @@ while (currentDate <= endMonth) {
                                                         <div className="flex-1 min-w-0">
                                                             <h4 className="text-white font-medium text-sm truncate">{taskName}</h4>
                                                             <div className="flex items-center gap-2 mt-1">
-                                                                <span className="text-slate-400 text-xs">{Math.round(count)} tasks</span>
+                                                                <span className="text-slate-400 text-xs">{Math.round(count)}</span>
                                                                 <span className="text-slate-600">•</span>
                                                                 <span className="text-cyan-400 text-xs font-semibold">{performance.taskPercentages[taskName]?.toFixed(1) || 0}% of state</span>
                                                             </div>
@@ -2763,7 +2935,7 @@ while (currentDate <= endMonth) {
                                                                 <div className="flex-1 pr-4">
                                                                     <h4 className="text-amber-200 font-medium text-sm">{taskName}</h4>
                                                                     <div className="flex items-center gap-2 mt-1">
-                                                                        <span className="text-amber-400/70 text-xs">{Math.round(count)} tasks</span>
+                                                                        <span className="text-amber-400/70 text-xs">{Math.round(count)}</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -2777,32 +2949,6 @@ while (currentDate <= endMonth) {
                                             )}
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* NEW: Pie Chart and Radar Chart Section */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {performance.pieChartData && performance.pieChartData.length > 0 && (
-                                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
-                                            <div className="flex items-center gap-3 mb-6">
-                                                <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-2.5 rounded-lg shadow-lg shadow-cyan-500/50">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                                                        <circle cx="12" cy="12" r="10"/>
-                                                        <line x1="12" y1="2" x2="12" y2="12"/>
-                                                        <line x1="12" y1="12" x2="16" y2="8"/>
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-xl font-bold text-white">
-                                                        {performance.department === 'AR Department' ? 'Collection Distribution' : 
-                                                         performance.department === 'Outbound Department' ? 'Production Distribution' : 
-                                                         'Verification Distribution'}
-                                                    </h3>
-                                                    <p className="text-slate-400 text-sm">Your contribution vs others</p>
-                                                </div>
-                                            </div>
-                                            <PieChart data={performance.pieChartData} />
-                                        </div>
-                                    )}
 
                                     {performance.radarChartData && performance.radarChartData.length > 0 && (
                                         <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-600 shadow-2xl">
@@ -2813,10 +2959,10 @@ while (currentDate <= endMonth) {
                                                     </svg>
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-xl font-bold text-white">Task Breakdown</h3>
-                                                    <p className="text-slate-400 text-sm">
-                                                        {performance.department === 'AR Department' ? 'AR Task Categories' : 
-                                                         performance.department === 'Outbound Department' ? 'Call Types Distribution' : 
+                                                    <h3 className="text-lg font-bold text-white">Task Breakdown</h3>
+                                                    <p className="text-slate-400 text-xs">
+                                                        {performance.department === 'AR Department' ? 'AR Categories' : 
+                                                         performance.department === 'Outbound Department' ? 'Call Types' : 
                                                          'Verification Types'}
                                                     </p>
                                                 </div>
