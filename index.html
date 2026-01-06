@@ -1982,6 +1982,10 @@ if (goalStartDate.toDateString() === goalEndDate.toDateString()) {
     console.log(`⚠️ Same date detected - ensuring full day coverage`);
 }
 
+// Initialize sets to track months and years
+const displayMonths = new Set();
+const displayYears = new Set();
+
 // Loop through each month in the date range
 let currentDate = new Date(goalStartDate.getFullYear(), goalStartDate.getMonth(), 1);
 const endMonth = new Date(goalEndDate.getFullYear(), goalEndDate.getMonth(), 1);
@@ -3268,6 +3272,7 @@ while (currentDate <= endMonth) {
     </script>
 </body>
 </html>
+
 
 
 
