@@ -2000,7 +2000,7 @@ while (currentDate <= endMonth) {
     if (monthAssignments.length > 0) {
         const monthOffices = monthAssignments.map(a => a.office).filter(o => o);
         
-        console.log(`📅 ${month}/${year} - Offices:`, monthOffices); // Debug log
+        console.log(`📅 ${month}/${year} - Offices:`, monthOffices);
         
         // Calculate the date range for THIS month only
         const monthStart = new Date(Math.max(currentDate, goalStartDate));
@@ -2011,30 +2011,47 @@ while (currentDate <= endMonth) {
         
         const daysInThisMonth = countWorkingDays(monthStart, monthEnd);
         
-        // Get goals for each office in this month and SUM them
-        monthOffices.forEach(office => {
-            if (!officeGoals[office]) {
-                officeGoals[office] = { collection: 0, production: 0, appointment: 0, call: 0, verification: 0 };
-            }
+        // NEW: Calculate AVERAGE goal for this month, then add to total
+        if (monthOffices.length > 0) {
+            let monthTotalCollection = 0, monthTotalProduction = 0, monthTotalAppointment = 0;
+            let monthTotalCall = 0, monthTotalVerification = 0;
             
-            const officeCollectionGoal = getGoalForOffice(configData.goals, monthAssignments[0].department, office, 'Collection', month, year);
-            const officeProductionGoal = getGoalForOffice(configData.goals, monthAssignments[0].department, office, 'Production', month, year);
-            const officeAppointmentGoal = getGoalForOffice(configData.goals, monthAssignments[0].department, office, 'Appointment', month, year);
-            const officeCallGoal = getGoalForOffice(configData.goals, monthAssignments[0].department, office, 'Call', month, year);
-            const officeVerificationGoal = getGoalForOffice(configData.goals, monthAssignments[0].department, office, 'Verification', month, year);
+            monthOffices.forEach(office => {
+                if (!officeGoals[office]) {
+                    officeGoals[office] = { collection: 0, production: 0, appointment: 0, call: 0, verification: 0 };
+                }
+                
+                const officeCollectionGoal = getGoalForOffice(configData.goals, monthAssignments[0].department, office, 'Collection', month, year);
+                const officeProductionGoal = getGoalForOffice(configData.goals, monthAssignments[0].department, office, 'Production', month, year);
+                const officeAppointmentGoal = getGoalForOffice(configData.goals, monthAssignments[0].department, office, 'Appointment', month, year);
+                const officeCallGoal = getGoalForOffice(configData.goals, monthAssignments[0].department, office, 'Call', month, year);
+                const officeVerificationGoal = getGoalForOffice(configData.goals, monthAssignments[0].department, office, 'Verification', month, year);
+                
+                // Store in officeGoals for weighted performance calculation
+                officeGoals[office].collection += officeCollectionGoal * daysInThisMonth;
+                officeGoals[office].production += officeProductionGoal * daysInThisMonth;
+                officeGoals[office].appointment += officeAppointmentGoal * daysInThisMonth;
+                officeGoals[office].call += officeCallGoal * daysInThisMonth;
+                officeGoals[office].verification += officeVerificationGoal * daysInThisMonth;
+                
+                // Sum goals for this month (will be averaged below)
+                monthTotalCollection += officeCollectionGoal * daysInThisMonth;
+                monthTotalProduction += officeProductionGoal * daysInThisMonth;
+                monthTotalAppointment += officeAppointmentGoal * daysInThisMonth;
+                monthTotalCall += officeCallGoal * daysInThisMonth;
+                monthTotalVerification += officeVerificationGoal * daysInThisMonth;
+            });
             
-            officeGoals[office].collection += officeCollectionGoal * daysInThisMonth;
-            officeGoals[office].production += officeProductionGoal * daysInThisMonth;
-            officeGoals[office].appointment += officeAppointmentGoal * daysInThisMonth;
-            officeGoals[office].call += officeCallGoal * daysInThisMonth;
-            officeGoals[office].verification += officeVerificationGoal * daysInThisMonth;
+            // Calculate AVERAGE for this month and add to employee's total
+            const officeCount = monthOffices.length;
+            collectionGoal += monthTotalCollection / officeCount;
+            productionGoal += monthTotalProduction / officeCount;
+            appointmentGoal += monthTotalAppointment / officeCount;
+            callGoal += monthTotalCall / officeCount;
+            verificationGoal += monthTotalVerification / officeCount;
             
-            collectionGoal += officeCollectionGoal * daysInThisMonth;
-            productionGoal += officeProductionGoal * daysInThisMonth;
-            appointmentGoal += officeAppointmentGoal * daysInThisMonth;
-            callGoal += officeCallGoal * daysInThisMonth;
-            verificationGoal += officeVerificationGoal * daysInThisMonth;
-        });
+            console.log(`📊 Month ${month}/${year}: ${officeCount} offices, avg daily goal: ${(monthTotalCollection / officeCount / daysInThisMonth).toFixed(2)}`);
+        }
     }
     
     // Move to next month
@@ -3251,6 +3268,7 @@ while (currentDate <= endMonth) {
     </script>
 </body>
 </html>
+
 
 
 
