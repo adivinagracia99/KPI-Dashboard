@@ -220,26 +220,100 @@
     return null;
 };
 
-        const shiftWeekendToWeekday = (date) => {
-            if (!date) return null;
-            const dayOfWeek = date.getDay();
-            const newDate = new Date(date);
-            if (dayOfWeek === 0) newDate.setDate(newDate.getDate() + 1);
-            else if (dayOfWeek === 6) newDate.setDate(newDate.getDate() - 1);
-            return newDate;
-        };
+        const shiftWeekendToWeekday = (date, workSchedule = 'Mon-Fri') => {
+    if (!date) return null;
+    const newDate = new Date(date);
+    
+    // Keep shifting until we find a working day
+    let attempts = 0;
+    while (!isWorkingDay(newDate, workSchedule) && attempts < 7) {
+        newDate.setUTCDate(newDate.getUTCDate() + 1);
+        attempts++;
+    }
+    
+    return attempts < 7 ? newDate : date;
+};
 
-        const countWorkingDays = (startDate, endDate) => {
-            if (!startDate || !endDate) return 0;
-            let count = 0;
-            let current = new Date(startDate);
-            while (current <= endDate) {
-                const dayOfWeek = current.getDay();
-                if (dayOfWeek >= 1 && dayOfWeek <= 5) count++;
-                current.setDate(current.getDate() + 1);
+        const isWorkingDay = (date, workSchedule) => {
+    if (!date || !workSchedule) return false;
+    
+    const dayOfWeek = date.getUTCDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+    
+    switch(workSchedule.toLowerCase()) {
+        case 'mon-fri':
+            return dayOfWeek >= 1 && dayOfWeek <= 5;
+        case 'sun-thu':
+            return dayOfWeek >= 0 && dayOfWeek <= 4;
+        case 'mon-sat':
+            return dayOfWeek >= 1 && dayOfWeek <= 6;
+        case 'sun-sat':
+            return dayOfWeek >= 0 && dayOfWeek <= 6;
+        default:
+            return dayOfWeek >= 1 && dayOfWeek <= 5;
+    }
+};
+
+        const detectWorkSchedule = (employeeData, productionData = [], appointmentData = [], employeeName = '') => {
+    const daysWorked = new Set();
+    
+    // Check main data (includes all tasks: AR collections, Outbound calls, Verification tasks, etc.)
+    employeeData.forEach(row => {
+        const rowDate = parseDate(row.date);
+        if (rowDate) {
+            daysWorked.add(rowDate.getUTCDay());
+        }
+    });
+    
+    // Check production data (Outbound Department)
+    productionData.forEach(row => {
+        const normalized = normalizeEmployeeName(row.name);
+        if (normalized === employeeName) {
+            const rowDate = parseDate(row.date);
+            if (rowDate) {
+                daysWorked.add(rowDate.getUTCDay());
             }
-            return count;
-        };
+        }
+    });
+    
+    // Check appointment data (Outbound Department)
+    appointmentData.forEach(row => {
+        const normalized = normalizeEmployeeName(row.name);
+        if (normalized === employeeName) {
+            const rowDate = parseDate(row.date);
+            if (rowDate) {
+                daysWorked.add(rowDate.getUTCDay());
+            }
+        }
+    });
+    
+    const daysArray = Array.from(daysWorked).sort();
+    const dayNames = daysArray.map(d => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d]);
+    console.log(`📅 Days worked by ${employeeName}:`, dayNames.join(', '));
+    
+    // Check if they work on Sunday (day 0)
+    if (daysWorked.has(0)) {
+        return 'Sun-Thu';
+    }
+    
+    // Check if they work on Friday (day 5)
+    if (daysWorked.has(5)) {
+        return 'Mon-Fri';
+    }
+    
+    // Default to Mon-Fri if we can't determine
+    return 'Mon-Fri';
+};
+
+        const countWorkingDays = (startDate, endDate, workSchedule = 'Mon-Fri') => {
+    if (!startDate || !endDate) return 0;
+    let count = 0;
+    let current = new Date(startDate);
+    while (current <= endDate) {
+        if (isWorkingDay(current, workSchedule)) count++;
+        current.setUTCDate(current.getUTCDate() + 1);
+    }
+    return count;
+};
 
         const getPerformanceColor = (percentage) => {
             if (percentage >= 90) return { bg: 'from-emerald-500 to-green-400', text: 'text-emerald-300', icon: 'bg-emerald-600/20', border: 'border-emerald-400' };
@@ -1795,54 +1869,60 @@ const assignedOffices = [...new Set(assignments.map(a => a.office).filter(o => o
 console.log(`📋 Employee Info - Name: ${selectedName}, Dept: ${primaryAssignment.department}, State: ${primaryAssignment.state}, Offices: ${assignedOffices.join(', ')}`);
 
                     // Filter data for this employee
-                    let filtered = data.filter(row => {
-                        const normalized = normalizeEmployeeName(row.name);
-                        return normalized === selectedName;
-                    });
-                    
-                    let filteredInsPmt = insPmtData.filter(row => {
-                        const normalized = normalizeEmployeeName(row.name);
-                        return normalized === selectedName;
-                    });
+let filtered = data.filter(row => {
+    const normalized = normalizeEmployeeName(row.name);
+    return normalized === selectedName;
+});
 
-                    // Calculate working days
+let filteredInsPmt = insPmtData.filter(row => {
+    const normalized = normalizeEmployeeName(row.name);
+    return normalized === selectedName;
+});
+
+// NEW: Detect work schedule from the employee's actual work data
+const allEmployeeData = [...filtered, ...filteredInsPmt];
+const workSchedule = detectWorkSchedule(allEmployeeData);
+
+console.log(`📋 Employee Info - Name: ${selectedName}, Detected Schedule: ${workSchedule}`);
+
+// Calculate working days
 let numberOfDays = 1;
-let actualWorkingDays = 1; // NEW: track actual working days separately
+let actualWorkingDays = 1; 
+                    
+// NEW: track actual working days separately
 if (startDate && endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const [startYear, startMonth, startDay] = startDate.split('-');
+    const [endYear, endMonth, endDay] = endDate.split('-');
+    const start = new Date(Date.UTC(parseInt(startYear), parseInt(startMonth) - 1, parseInt(startDay)));
+    const end = new Date(Date.UTC(parseInt(endYear), parseInt(endMonth) - 1, parseInt(endDay)));
     
-    // Check if it's the same date
     if (start.toDateString() === end.toDateString()) {
-        // For same date, check if it's a weekday
-        const dayOfWeek = start.getDay();
-        actualWorkingDays = (dayOfWeek >= 1 && dayOfWeek <= 5) ? 1 : 0;
-        numberOfDays = Math.max(1, actualWorkingDays); // Always at least 1 for display
-        console.log(`📆 Same date selected: ${start.toDateString()}, is weekday: ${actualWorkingDays === 1}, day: ${dayOfWeek}`);
+        actualWorkingDays = isWorkingDay(start, workSchedule) ? 1 : 0;
+        numberOfDays = Math.max(1, actualWorkingDays);
+        console.log(`📆 Same date selected: ${start.toDateString()}, is working day: ${actualWorkingDays === 1}, schedule: ${workSchedule}`);
     } else {
-        actualWorkingDays = countWorkingDays(start, end);
+        actualWorkingDays = countWorkingDays(start, end, workSchedule);
         numberOfDays = Math.max(1, actualWorkingDays);
     }
 } else if (startDate || endDate) {
-    const singleDate = new Date(startDate || endDate);
-    const dayOfWeek = singleDate.getDay();
-    actualWorkingDays = (dayOfWeek >= 1 && dayOfWeek <= 5) ? 1 : 0;
+    const dateStr = startDate || endDate;
+    const [year, month, day] = dateStr.split('-');
+    const singleDate = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)));
+    actualWorkingDays = isWorkingDay(singleDate, workSchedule) ? 1 : 0;
     numberOfDays = Math.max(1, actualWorkingDays);
 } else {
-    // No date filter - count unique working days from data
+    // No date filter - count unique working days from data based on detected schedule
     const uniqueDates = new Set();
     filtered.forEach(row => {
         const rowDate = parseDate(row.date);
-        if (rowDate) {
-            const shiftedDate = shiftWeekendToWeekday(rowDate);
-            if (shiftedDate) uniqueDates.add(shiftedDate.toDateString());
+        if (rowDate && isWorkingDay(rowDate, workSchedule)) {
+            uniqueDates.add(rowDate.toDateString());
         }
     });
     filteredInsPmt.forEach(row => {
         const rowDate = parseDate(row.date);
-        if (rowDate) {
-            const shiftedDate = shiftWeekendToWeekday(rowDate);
-            if (shiftedDate) uniqueDates.add(shiftedDate.toDateString());
+        if (rowDate && isWorkingDay(rowDate, workSchedule)) {
+            uniqueDates.add(rowDate.toDateString());
         }
     });
     actualWorkingDays = Math.max(1, uniqueDates.size);
@@ -3327,6 +3407,7 @@ console.log(`📅 ${month}/${year} - Working days in range: ${daysInThisMonth}`)
     </script>
 </body>
 </html>
+
 
 
 
