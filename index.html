@@ -1669,16 +1669,29 @@
 
         console.log('✅ All data fetched successfully');
 
-        // Parse main data (keep your existing parsing code)
+        // Parse main data - Sheet 1 structure: A=Date(with time), D=Task, F=Amount, I=Name
         const parsedData = rows1.slice(1).map(row => ({
-            date: row[0] || '', task: row[3] || '', amount: row[4] || '',
-            collectionAmount: row[5] || '', name: row[8] || '', office: row[2] || '', source: 'Data'
+            date: row[0] || '',              // Column A - Date (with timestamp)
+            task: row[3] || '',              // Column D - Task (e.g., "Total Balance Collected")
+            amount: row[4] || '',            // Column E - (keeping for other tasks)
+            collectionAmount: row[5] || '',  // Column F - Collection Amount
+            name: row[8] || '',              // Column I - Name
+            office: row[2] || '',            // Column C - Office
+            source: 'Data'
         })).filter(row => row.name && row.name.trim() && row.task && row.task.trim() && row.date && row.date.trim());
+        
+        console.log('📋 Parsed Data sheet sample:', parsedData.slice(0, 3));
 
-        // Parse Ins Pmt data (keep existing)
+        // Parse Ins Pmt data
+        // Sheet 2 structure: Column C (index 2) = Amount, Column E (index 4) = Date, Column F (index 5) = Name
         const parsedInsPmt = rows2.slice(1).map(row => ({
-            date: row[2] || '', amount: row[4] || '', name: row[6] || '', source: 'InsPmt'
-        })).filter(row => row.name && row.name.trim() && row.date && row.date.trim() && row.amount && row.amount.toString().trim());
+            date: row[4] || '',  // Column E - Date (index 4)
+            amount: row[2] || '', // Column C - Amount (index 2)
+            name: normalizeEmployeeName(row[5] || ''), // Column F - Name (index 5)
+            source: 'InsPmt'
+        })).filter(row => row.name && row.date && row.date.trim() && row.amount && row.amount.toString().trim());
+        
+        console.log('📋 Parsed InsPmt sample:', parsedInsPmt.slice(0, 3));
 
         // Parse collection data (keep existing)
         const parsedCollectionData = [];
@@ -3312,6 +3325,7 @@ console.log(`📅 ${month}/${year} - Working days in range: ${daysInThisMonth}`)
     </script>
 </body>
 </html>
+
 
 
 
