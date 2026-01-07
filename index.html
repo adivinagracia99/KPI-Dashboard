@@ -2542,26 +2542,68 @@ console.log(`📅 ${month}/${year} - Working days in range: ${daysInThisMonth}`)
                                 return sum;
                             }, 0);
                         } else if (outboundMetric === 'appointments') {
-                            userMetricValue = totalCompletedAppointments;
-                            stateMetricTotal = stateAppointmentTotal;
-                            
-                            allDeptMetricTotal = configData.employeeCodes.reduce((sum, empCode) => {
-                                const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
-                                if (empAssignments.length > 0 && empAssignments[0].department === 'Outbound Department') {
-                                    let empAppointments = appointmentData.filter(row => normalizeEmployeeName(row.name) === empCode);
-                                    if (startDate) {
-                                        const startDateObj = new Date(startDate);
-                                        empAppointments = empAppointments.filter(row => parseDate(row.date) >= startDateObj);
-                                    }
-                                    if (endDate) {
-                                        const endDateObj = new Date(endDate);
-                                        empAppointments = empAppointments.filter(row => parseDate(row.date) <= endDateObj);
-                                    }
-                                    return sum + empAppointments.reduce((s, row) => s + (row.count || 0), 0);
-                                }
-                                return sum;
-                            }, 0);
-                        } else if (outboundMetric === 'calls') {
+    userMetricValue = totalAppointments; // Use totalAppointments from Sheet 1 data
+    stateMetricTotal = 0; // We'll recalculate this from Sheet 1 data
+    
+    // Calculate state total from Sheet 1 appointment tasks
+    const employeesInState = configData.employeeCodes.filter(empCode => {
+        const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+        return empAssignments.length > 0 && empAssignments[0].state === userState;
+    });
+    
+    stateMetricTotal = employeesInState.reduce((sum, empCode) => {
+        const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+        if (empAssignments[0]?.department === 'Outbound Department') {
+            let empData = data.filter(row => normalizeEmployeeName(row.name) === empCode);
+            if (startDate) {
+                const startDateObj = new Date(startDate);
+                empData = empData.filter(row => parseDate(row.date) >= startDateObj);
+            }
+            if (endDate) {
+                const endDateObj = new Date(endDate);
+                empData = empData.filter(row => parseDate(row.date) <= endDateObj);
+            }
+            let empAppointments = 0;
+            empData.forEach(row => {
+                const standardTaskName = findTaskName(row.task.trim());
+                if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt' || 
+                    standardTaskName === 'Inbound Text Appt' || standardTaskName === 'Outbound Text Appt') {
+                    const amountValue = parseNumericValue(row.amount);
+                    empAppointments += amountValue > 0 ? amountValue : 1;
+                }
+            });
+            return sum + empAppointments;
+        }
+        return sum;
+    }, 0);
+    
+    allDeptMetricTotal = configData.employeeCodes.reduce((sum, empCode) => {
+        const empAssignments = getEmployeeAssignments(configData.employees, empCode, currentMonth, currentYear);
+        if (empAssignments.length > 0 && empAssignments[0].department === 'Outbound Department') {
+            let empData = data.filter(row => normalizeEmployeeName(row.name) === empCode);
+            if (startDate) {
+                const startDateObj = new Date(startDate);
+                empData = empData.filter(row => parseDate(row.date) >= startDateObj);
+            }
+            if (endDate) {
+                const endDateObj = new Date(endDate);
+                empData = empData.filter(row => parseDate(row.date) <= endDateObj);
+            }
+            let empAppointments = 0;
+            empData.forEach(row => {
+                const standardTaskName = findTaskName(row.task.trim());
+                if (standardTaskName === 'Inbound Appt' || standardTaskName === 'Outbound Appt' || 
+                    standardTaskName === 'Inbound Text Appt' || standardTaskName === 'Outbound Text Appt') {
+                    const amountValue = parseNumericValue(row.amount);
+                    empAppointments += amountValue > 0 ? amountValue : 1;
+                }
+            });
+            return sum + empAppointments;
+        }
+        return sum;
+    }, 0);
+} 
+                        else if (outboundMetric === 'calls') {
                             userMetricValue = totalCalls;
                             
                             // Calculate state calls total
@@ -3437,6 +3479,7 @@ console.log(`📅 ${month}/${year} - Working days in range: ${daysInThisMonth}`)
     </script>
 </body>
 </html>
+
 
 
 
